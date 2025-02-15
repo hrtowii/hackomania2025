@@ -83,11 +83,13 @@ def get_user(user_id):
             "SELECT health_score_avg, challenge_progress FROM Users WHERE id = (?)", (user_id,))
         rows = cur.fetchall()
 
-    if not rows:
-        return make_response(jsonify(error="User doesn't exist"), 404)
+    print(rows)
 
-    health_score = rows[0]['health_score_avg']
-    challenge_progress = rows[0]['challenge_progress']
+    try:
+        health_score = rows[0]['health_score_avg']
+        challenge_progress = rows[0]['challenge_progress']
+    except:
+        return make_response(jsonify(error="User doesn't exist"), 404)
 
     with sqlite3.connect('database.db') as con:
         con.row_factory = sqlite3.Row
@@ -309,8 +311,20 @@ def get_challenges():
         challenges.append(challenge)
     return make_response(jsonify(challenges=challenges), 200)
 
-# @app.route("/challenge_leaderboard/<challenge_no>/<num>")
-# def get_challenge_leaderboard(challenge_no, num):
+
+@app.route("/challenge_leaderboard/<challenge_no>/<num>")
+def get_challenge_leaderboard(challenge_no, num):
+    with sqlite3.connect('database.db') as con:
+        con.row_factory = sqlite3.Row
+        cur = con.cursor()
+        cur.execute(f"SELECT id, username, json_extract(challenge_progress, '$[{int(challenge_no) - 1}]') AS points FROM Users ORDER BY points DESC LIMIT {num}")
+        rows = cur.fetchall()
+
+    users = []
+    for user in rows:
+        user = dict(user)
+        users.append(user)
+    return make_response(jsonify(users=users), 200)
 
 @app.route("/leaderboard/health/<num>")
 def leaderboard_health(num):
