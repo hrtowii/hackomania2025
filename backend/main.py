@@ -172,8 +172,6 @@ def upload():
 
     return make_response(jsonify(status=200))
 
-
-
 @app.route("/feed/<user_id>/friends/<sort_method>")
 def friend_feed(user_id, sort_method):
 
@@ -209,6 +207,29 @@ def friend_feed(user_id, sort_method):
         cur = con.cursor()
         cur.execute(
             f"SELECT * FROM Posts WHERE userId IN ({placeholders}) ORDER BY {sort_options.get(sort_method, 'upvotes DESC')}", tuple(friendlist_parsed))
+        rows = cur.fetchall()
+
+    posts = []
+    for post in rows:
+        post = dict(post)
+        posts.append(post)
+
+    return make_response(jsonify(posts=posts,status=200))
+
+
+@app.route("/feed/community/<sort_method>")
+def community_feed(sort_method):
+
+    sort_options = {
+        "recency": "timestamp ASC",
+        "upvotes": "upvotes DESC",
+        "health": "health_score DESC"
+    }
+
+    with sqlite3.connect('database.db') as con:
+        con.row_factory = sqlite3.Row
+        cur = con.cursor()
+        cur.execute(f"SELECT * FROM Posts WHERE visibility='public' ORDER BY {sort_options.get(sort_method, 'upvotes DESC')}")
         rows = cur.fetchall()
 
     posts = []
