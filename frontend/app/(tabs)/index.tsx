@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, FlatList, RefreshControl, ScrollView, Image, Text, Pressable, StyleSheet } from 'react-native';
+import { View, FlatList, RefreshControl, ScrollView, Image, Text, Pressable, StyleSheet, Modal } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { BackendUrl } from '@/context/backendUrl'; 
 import { FontAwesome6 } from '@expo/vector-icons';
@@ -15,12 +15,12 @@ interface Post {
   upvotes: number;
 } 
 
-
-
 export default function CombinedScreen() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [viewMode, setViewMode] = useState<'home' | 'grid'>('home');
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
   const fetchPosts = async () => {
     try {
       const response = await fetch(`${BackendUrl}/feed/community/upvotes`);
@@ -31,7 +31,6 @@ export default function CombinedScreen() {
     }
   }; 
 
-  // Refresh when the screen is focused
   useFocusEffect(
     useCallback(() => {
       fetchPosts();
@@ -40,12 +39,20 @@ export default function CombinedScreen() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    const refreshedPosts = await fetchPosts();
-    setPosts(refreshedPosts);
+    await fetchPosts();
     setRefreshing(false);
   };
 
-  // Render a grid item for grid view.
+  const openModal = (post: Post) => {
+    setSelectedPost(post);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedPost(null);
+  };
+
   const renderGridItem = ({ item }: { item: Post }) => {
     const backImageUri = `data:image/jpeg;base64,${item.back_image}`;
     const frontImageUri = `data:image/jpeg;base64,${item.front_image}`;
@@ -59,10 +66,12 @@ export default function CombinedScreen() {
 
   const renderHomeView = () => (
     <FlatList
+      key={viewMode} // Add key prop to force re-render
       numColumns={1}
       data={posts}
       keyExtractor={(item) => item.id.toString()}
       renderItem={({ item: post }) => (
+        <Pressable onPress={() => openModal(post)}>
         <View style={styles.homeItem}>
           <Text style={styles.titleText}>Post #{post.id}</Text>
           <Image
@@ -73,6 +82,7 @@ export default function CombinedScreen() {
           <Text>Calories: {post.calories}</Text>
           <Text>Upvotes: {post.upvotes}</Text>
         </View>
+      </Pressable>
       )}
       refreshing={refreshing}
       onRefresh={handleRefresh}
@@ -83,6 +93,7 @@ export default function CombinedScreen() {
     <View style={{ flex: 1 }}>
       {viewMode === 'grid' ? (
         <FlatList
+          key={viewMode} // Add key prop to force re-render
           data={posts}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderGridItem}
@@ -94,13 +105,53 @@ export default function CombinedScreen() {
       ) : (
         renderHomeView()
       )}
-      {/* Floating swap button */}
       <Pressable
-        style={styles.floatingButton}
+        style={styles.floatingButton} 
         onPress={() => setViewMode(viewMode === 'home' ? 'grid' : 'home')}
       >
         <Text style={{ color: '#fff', fontSize: 24 }}>{viewMode === 'home' ? '🔳' : '🔲'}</Text>
       </Pressable>
+      {selectedPost && (
+      <Modal
+          visible={modalVisible}
+          animationType="slide"
+          onRequestClose={() => setModalVisible(false)}
+          transparent={false}
+        >
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Post Details</Text>
+            <Image
+              source={{ uri: `data:image/jpeg;base64,${selectedPost.back_image}` }}
+              // source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
+              style={styles.modalBackImage}
+              resizeMode="cover"
+            />
+            <Image
+              source={{ uri: `data:image/jpeg;base64,${selectedPost.front_image}` }}
+              // source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
+              style={styles.modalFrontImage}
+              resizeMode="contain"
+            />
+            <View style={styles.detailsContainer}>
+              <Text style={styles.detailTitle}>Ingredients:</Text>
+              {selectedPost.ingredients
+                .replace(/[\[\]"]/g, '') // Remove brackets and quotation marks
+                .split(',') // Split by commas
+                .map((ingredient, index) => (
+                  <Text key={index} style={styles.ingredientText}>
+                    • {ingredient.trim()} {/* Trim whitespace and render */}
+                  </Text>
+                ))}
+              <Text style={styles.detailText}>Calories: {selectedPost.calories}</Text>
+              <Text style={styles.detailText}>Health Score: {selectedPost.health_score}</Text>
+              <Text style={styles.detailText}>Upvotes: {selectedPost.upvotes}</Text>
+            </View>
+            <Pressable style={styles.closeButton} onPress={() => setModalVisible(false)}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </Pressable>
+          </View>
+        </Modal>
+      )}
     </View>
   );
 } 
@@ -151,7 +202,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginVertical: 10,
   },
-  // Floating button styles
   floatingButton: {
     position: 'absolute',
     bottom: 100,
@@ -167,6 +217,60 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
-    zIndex: 999, // Ensure the button is on top
+    zIndex: 999,
+  },
+  modalContainer: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#fff',
+  },
+  modalTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  detailsContainer: {
+    marginBottom: 20,
+  },
+  detailTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  detailText: {
+    fontSize: 18,
+    marginBottom: 5,
+  },
+  ingredientText: {
+    fontSize: 16,
+    marginBottom: 5,
+    marginLeft: 10,
+  },
+  modalBackImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 15,
+    marginBottom: 15,
+  },
+  modalFrontImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    alignSelf: 'center',
+    marginBottom: 15,
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  closeButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: '#2196F3',
+    alignSelf: 'center',
+    borderRadius: 8,
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 18,
   },
 });
