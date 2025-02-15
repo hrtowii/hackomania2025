@@ -2,7 +2,6 @@ import json
 import sqlite3
 from flask import Flask, jsonify, request
 from flask_login import LoginManager
-import OpenAI
 from dbcmds import save_post
 
 import base64
@@ -70,7 +69,7 @@ def login():
         db_password = rows[0]['password']
         user_id = rows[0]['id']
         if db_password == password:
-            return jsonify(id=user_id), 200
+            return jsonify(id=user_id)
         else:
             return jsonify(error="Wrong password"), 400
     except:
@@ -101,7 +100,7 @@ def get_user(user_id):
 
     posts = rows
 
-    return jsonify(posts=posts, health_score=health_score, challenge_progress=challenge_progress), 200
+    return jsonify(posts=posts, health_score=health_score, challenge_progress=challenge_progress)
 
 
 @app.route("/users/<user_id>/friends/add/<friend_id>/", methods=["GET"])
@@ -193,7 +192,7 @@ def upload():
         return jsonify(error="No user ID provided", status=400)
     elif isinstance(user_id, int) == False:
         return jsonify(error="User ID is not int", status=400)
-    
+
     if (vis != "public") and (vis != "friends"):
         return jsonify(error="Invalid visibility type")
 
@@ -204,17 +203,57 @@ def upload():
     except ValueError as e:
         return jsonify(error=str(e), status=400)
 
-
-    
-
-    
-    
-    return jsonify(status=200)
+    return jsonify(success=True)
 
 
 @app.route("/posts/<post_id>/", methods=["GET"])
 def get_post_by_id(post_id):
     pass
+
+
+@app.route("/feed/<user_id>/friends/<sort_method>")
+def friend_feed(user_id, sort_method):
+
+    with sqlite3.connect('database.db') as con:
+        con.row_factory = sqlite3.Row
+        cur = con.cursor()
+        cur.execute(
+            "SELECT friends FROM Users WHERE id = (?)", (user_id,))
+        rows = cur.fetchall()
+
+    try:
+        friendlist = rows[0]['friends']
+    except:
+        return jsonify(error="user doesn't exist"), 400
+
+    friendlist_parsed = json.loads(friendlist)
+
+    print(friendlist_parsed)
+
+    placeholders = ','.join(['?'] * len(friendlist_parsed))
+
+    print(placeholders)
+
+
+    sort_options = {
+        "recency": "timestamp ASC",
+        "upvotes": "upvotes DESC",
+        "health": "health_score DESC"
+    }
+
+    with sqlite3.connect('database.db') as con:
+        con.row_factory = sqlite3.Row
+        cur = con.cursor()
+        cur.execute(
+            f"SELECT * FROM Posts WHERE userId IN ({placeholders}) ORDER BY {sort_options.get(sort_method, 'upvotes DESC')}", tuple(friendlist_parsed))
+        rows = cur.fetchall()
+
+    posts = []
+    for post in rows:
+        post = dict(post)
+        posts.append(post)
+
+    return jsonify(posts=posts)
 
 if __name__ == "__main__":
     app.run(port=8080)
