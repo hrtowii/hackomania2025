@@ -49,7 +49,7 @@ def signup():
                         (email, password, username))
         con.commit()
 
-        return jsonif), 200
+        return 200
 
 
 @app.route("/auth/login", methods=["POST"])
@@ -196,7 +196,6 @@ def upload():
 @app.route("/posts/<post_id>/", methods=["GET"])
 def get_post_by_id(post_id):
     pass
-
 
 if __name__ == "__main__":
     app.run(port=8080)
