@@ -140,18 +140,17 @@ def add_friend(user_id, friend_id):
 
     return make_response(jsonify(success=True))
 
-
 @app.route("/posts/upload", methods=["POST"])
 def upload():
     data = request.get_json()
 
     if not data or 'front_image' not in data or 'back_image' not in data:
         return jsonify(error="No image found", status=400)
-        
+
     front_image = data['front_image']
     back_image = data['back_image']
     vis = data['visibility']
-    user_id = data['userID'] 
+    user_id = data['userID']
     curr_dt = datetime.datetime.now()
 
     if not user_id:
@@ -164,14 +163,14 @@ def upload():
         user_id = int(user_id)
     except ValueError:
         return make_response(jsonify(error="User ID must be an integer"), 400)
-    
+
     res = analyze_image_with_openai(back_image)
     cals = res["calories"]
     hs = res["health_score"]
     ingredients = res['ingredients'].split(', ')
-    
+
     print(res, cals, vis, user_id, curr_dt, hs, ingredients)
-    
+
     save_post(userId=user_id, front_image=front_image, back_image=back_image, ingredients=json.dumps(ingredients), calories=cals, health_score=hs, visibility=vis, timestamp=curr_dt, upvotes=0)
     return make_response(jsonify(status=200))
 
@@ -198,7 +197,6 @@ def friend_feed(user_id, sort_method):
 
     print(placeholders)
 
-
     sort_options = {
         "recency": "timestamp ASC",
         "upvotes": "upvotes DESC",
@@ -217,7 +215,7 @@ def friend_feed(user_id, sort_method):
         post = dict(post)
         posts.append(post)
 
-    return make_response(jsonify(posts=posts,status=200))
+    return make_response(jsonify(posts=posts), 200)
 
 @app.route("/feed/community/<sort_method>")
 def community_feed(sort_method):
@@ -239,7 +237,7 @@ def community_feed(sort_method):
         post = dict(post)
         posts.append(post)
 
-    return make_response(jsonify(posts=posts,status=200))
+    return make_response(jsonify(posts=posts), 200)
 
 @app.route("/feed/healthy/<sort_method>")
 def healthy_feed(sort_method):
@@ -261,7 +259,7 @@ def healthy_feed(sort_method):
         post = dict(post)
         posts.append(post)
 
-    return make_response(jsonify(posts=posts,status=200))
+    return make_response(jsonify(posts=posts), 200)
 
 @app.route("/posts/upvote/<post_id>")
 def upvote_post(post_id):
@@ -280,9 +278,21 @@ def upvote_post(post_id):
 
         count = rows[0]['upvotes']
 
-        return make_response(jsonify(count=count, status=200))
+        return make_response(jsonify(count=count), 200)
     except:
         return make_response(jsonify(error="Post with specified ID doesn't exist!"), 400)
+
+@app.route("/posts/<post_id>")
+def get_post(post_id):
+
+    with sqlite3.connect('database.db') as con:
+        con.row_factory = sqlite3.Row
+        cur = con.cursor()
+        cur.execute(
+            f"SELECT * FROM Posts WHERE id={post_id}")
+        rows = cur.fetchall()
+    post = dict(rows[0])
+    return make_response(jsonify(post=post), 200)
 
 if __name__ == "__main__":
     app.run(port=8080)
