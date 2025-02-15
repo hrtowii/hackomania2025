@@ -105,7 +105,7 @@ export default function CombinedScreen() {
 
   // Render the list (home) view.
   const renderHomeView = () => (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={styles.backgroundcontainer}>
       <FlatList
         key={viewMode}
         numColumns={1}
@@ -239,19 +239,23 @@ const styles = StyleSheet.create({
   gridContainer: {
     padding: 5,
   },
+  backgroundcontainer: {
+    backgroundColor: '#000000',
+    flex:1,
+  },
   gridItem: {
     flex: 1,
     margin: 5,
     aspectRatio: 1,
     borderRadius: 15,
     overflow: 'hidden',
-    backgroundColor: '#5c8001',
+    backgroundColor: '#ffffff',
     position: 'relative',
   },
   homeItem: {
-    padding: 10,
-    marginVertical: 8,
-    backgroundColor: '#5c8001',
+    padding: 20,
+    marginVertical: 15,
+    backgroundColor: '#ffffff',
     borderRadius: 10,
     marginHorizontal: 10,
   },
@@ -275,7 +279,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 100,
     right: 20,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#fff',
     borderRadius: 30,
     width: 60,
     height: 60,
@@ -346,7 +350,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     width: '100%',
     height: 150,
-    backgroundColor: "#5c8001",
+    backgroundColor: "#40ad9d",
   },
   backImage: {
     width: '100%',
@@ -401,8 +405,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 25,
     right: 15,
-    backgroundColor: '#007AFF', // Solid round background color
+    backgroundColor: '#000', // Solid round background color
     borderRadius: 30,
+    opacity: 0.7,
     padding: 15,
     flexDirection: 'row',
     alignItems: 'center',
@@ -411,7 +416,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 5,
     right: 5,
-    backgroundColor: '#007AFF', // Solid round background color
+    backgroundColor: '#000', // Solid round background color
     borderRadius: 30,
     padding: 5,
     flexDirection: 'row',

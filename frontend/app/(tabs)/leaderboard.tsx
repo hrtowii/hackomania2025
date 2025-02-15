@@ -113,14 +113,16 @@ export default function LeaderboardComponent() {
                     {/* Add more challenges as needed */}
                 </Picker>
 
-                <TextInput
+
+            </View>
+            <Text style={styles.label}>Num of entries:</Text>
+            <TextInput
                     style={styles.input}
                     keyboardType="numeric"
                     value={String(numEntries)}
                     onChangeText={(text) => setNumEntries(Number(text))}
                     placeholder="Number of entries"
                 />
-            </View>
 
             <Leaderboard
                 data={leaderboardData}
@@ -165,6 +167,10 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 5,
         elevation: 3,
+    },
+    label: {
+        textAlign: 'left',
+        paddingLeft: 12
     },
     rank: {
         fontSize: 16,
@@ -211,10 +217,10 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
     input: {
-        flex: 1,
         borderColor: '#ccc',
         borderWidth: 1,
         borderRadius: 5,
         padding: 10,
+        margin: 10
     },
 });
