@@ -8,10 +8,8 @@ import {
   Pressable,
   StyleSheet,
   Modal,
-  ActivityIndicator
-} from 'react-native'; 
+} from 'react-native';
 
-const POSTS_PER_PAGE = 10; // adjust as needed 
 
 interface Post {
   id: number;
@@ -25,10 +23,8 @@ interface Post {
 
 export default function CommunityFeedGrid() {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [page, setPage] = useState(1);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [selectedPost, setSelectedPost] = useState<Post|null>(null);
-  const [modalVisible, setModalVisible] = useState(false); 
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const fetchPosts = async () => {
     try {
@@ -39,15 +35,15 @@ export default function CommunityFeedGrid() {
       console.error('Error fetching posts', error);
       return [];
     }
-  }; 
+  };
 
   useEffect(() => {
     async function loadInitialPosts() {
-      const initialPosts = await fetchPosts(1);
+      const initialPosts = await fetchPosts();
       setPosts(initialPosts);
     }
     loadInitialPosts();
-  }, []); 
+  }, []);
 
   // Render each grid post
   const renderPostItem = ({ item }: { item: Post }) => {
@@ -63,21 +59,21 @@ export default function CommunityFeedGrid() {
           setModalVisible(true);
         }}
       >
-        {/* {/* Back image as the background /} */}
         <Image
-          source={{ uri: backImageUri }}
+          // source={{ uri: backImageUri }}
+          source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
           style={styles.backImage}
           resizeMode="cover"
         />
-        {/* {/  Front image displayed at top right */} */}
         <Image
-          source={{ uri: frontImageUri }}
+          // source={{ uri: frontImageUri }}
+          source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
           style={styles.frontImage}
           resizeMode="contain"
         />
       </Pressable>
     );
-  }; 
+  };
 
   return (
     <View style={styles.container}>
@@ -86,44 +82,56 @@ export default function CommunityFeedGrid() {
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderPostItem}
         numColumns={2} // Adjust number of columns as needed
-        // onEndReached={loadMorePosts}
-        // onEndReachedThreshold={0.5}
-        ListFooterComponent={loadingMore ? <ActivityIndicator size="large" color="#000" /> : null}
-      /> 
-  {/* Modal to show detailed post info */}
-  {selectedPost && (
-    <Modal
-      visible={modalVisible}
-      animationType="slide"
-      onRequestClose={() => setModalVisible(false)}
-      transparent={false}
-    >
-      <View style={styles.modalContainer}>
-        <Text style={styles.modalTitle}>Post Details</Text>
-        <Image
-          source={{ uri: `data:image/jpeg;base64,${selectedPost.back_image}` }}
-          style={styles.modalBackImage}
-          resizeMode="cover"
-        />
-        <Image
-          source={{ uri: `data:image/jpeg;base64,${selectedPost.front_image}` }}
-          style={styles.modalFrontImage}
-          resizeMode="contain"
-        />
-        <Text>Ingredients: {selectedPost.ingredients}</Text>
-        <Text>Calories: {selectedPost.calories}</Text>
-        <Text>Health Score: {selectedPost.health_score}</Text>
-        <Text>Upvotes: {selectedPost.upvotes}</Text>
-        <Pressable style={styles.closeButton} onPress={() => setModalVisible(false)}>
-          <Text style={styles.closeButtonText}>Close</Text>
-        </Pressable>
-      </View>
-    </Modal>
-  )}
-</View>
+      // onEndReached={loadMorePosts}
+      // onEndReachedThreshold={0.5}
+      // ListFooterComponent={loadingMore ? <ActivityIndicator size="large" color="#000" /> : null}
+      />
+      {/* Modal to show detailed post info */}
+      {selectedPost && (
+        <Modal
+          visible={modalVisible}
+          animationType="slide"
+          onRequestClose={() => setModalVisible(false)}
+          transparent={false}
+        >
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Post Details</Text>
+            <Image
+              // source={{ uri: `data:image/jpeg;base64,${selectedPost.back_image}` }}
+              source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
+              style={styles.modalBackImage}
+              resizeMode="cover"
+            />
+            <Image
+              // source={{ uri: `data:image/jpeg;base64,${selectedPost.front_image}` }}
+              source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
+              style={styles.modalFrontImage}
+              resizeMode="contain"
+            />
+            <View style={styles.detailsContainer}>
+              <Text style={styles.detailTitle}>Ingredients:</Text>
+              {selectedPost.ingredients
+                .replace(/[\[\]"]/g, '') // Remove brackets and quotation marks
+                .split(',') // Split by commas
+                .map((ingredient, index) => (
+                  <Text key={index} style={styles.ingredientText}>
+                    • {ingredient.trim()} {/* Trim whitespace and render */}
+                  </Text>
+                ))}
+              <Text style={styles.detailText}>Calories: {selectedPost.calories}</Text>
+              <Text style={styles.detailText}>Health Score: {selectedPost.health_score}</Text>
+              <Text style={styles.detailText}>Upvotes: {selectedPost.upvotes}</Text>
+            </View>
+            <Pressable style={styles.closeButton} onPress={() => setModalVisible(false)}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </Pressable>
+          </View>
+        </Modal>
+      )}
+    </View>
 
   );
-} 
+}
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -162,6 +170,23 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
+  },
+  detailsContainer: {
+    marginBottom: 20,
+  },
+  detailTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  detailText: {
+    fontSize: 18,
+    marginBottom: 5,
+  },
+  ingredientText: {
+    fontSize: 16,
+    marginBottom: 5,
+    marginLeft: 10,
   },
   modalBackImage: {
     width: '100%',
