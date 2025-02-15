@@ -1,7 +1,7 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import { router, Tabs } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
-
+import { useAuth } from '@/context/authContext';
 import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
@@ -10,6 +10,23 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const { userId, initialized } = useAuth();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true); // Mark the component as mounted
+  }, []);
+
+  useEffect(() => {
+    if (isMounted && initialized && !userId) {
+      // Ensure the component is mounted before navigating
+      router.replace('/auth/login');
+    }
+  }, [isMounted, initialized, userId]);
+
+  if (!initialized) {
+    return null;
+  }
 
   return (
     <Tabs
