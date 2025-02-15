@@ -131,17 +131,27 @@ def add_friend(user_id, friend_id):
     except:
         return jsonify(error="user doesn't exist"), 400
 
+
+    print(1)
+
     # i know this is terrible practice dont murder me but i cant be bothered to deal with the foreign key shit
     # hopefully this doesnt bckfire :)
 
-    friends_friendlist_parsed = json.loads(friends_friendlist[0])
-    user_friendlist_parsed = json.loads(user_friendlist[0])
+    print(friends_friendlist)
+    print(user_friendlist)
+
+    friends_friendlist_parsed = json.loads(friends_friendlist)
+    user_friendlist_parsed = json.loads(user_friendlist)
+
+    print(2)
 
     if user_id not in friends_friendlist:
         friends_friendlist_parsed.append(user_id)
 
     if friend_id not in user_friendlist:
-        user_friendlist_parsed.append(user_id)
+        user_friendlist_parsed.append(friend_id)
+
+    print(3)
 
     with sqlite3.connect('database.db') as con:
         con.row_factory = sqlite3.Row
@@ -151,6 +161,8 @@ def add_friend(user_id, friend_id):
         cur.execute("UPDATE Users SET friends=(?) WHERE id=(?)",
                         (json.dumps(friends_friendlist_parsed), friend_id))
         con.commit()
+
+    print(4)
 
     return jsonify(success=True)
 
