@@ -29,12 +29,6 @@ class FoodDetails(BaseModel):
     total_chals: int
 
 def analyze_image_with_openai(image_b64: str):
-    """
-    This function sends a base64-encoded image along with instructions to the OpenAI
-    vision API using the OpenAI library. The prompt instructs the model to detect
-    if the image contains papayas, cucumbers, or tomatoes and to provide details
-    on watering, soil, pest, and harvesting.
-    """
     try:
         response = client.beta.chat.completions.parse(
             model="gpt-4o-2024-08-06",
