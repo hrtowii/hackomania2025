@@ -1,166 +1,170 @@
-import { BackendUrl } from '@/context/backendUrl';
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  Image,
-  Pressable,
-  StyleSheet,
-  Modal,
-  ActivityIndicator
-} from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, FlatList, RefreshControl, ScrollView, Image, Text, Pressable, StyleSheet } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import { BackendUrl } from '@/context/backendUrl'; 
+import { FontAwesome6 } from '@expo/vector-icons';
 
 interface Post {
   id: number;
+  userID: number;
   back_image: string;
   front_image: string;
   ingredients: string;
   calories: number;
   health_score: number;
   upvotes: number;
-}
+} 
 
-export default function CommunityFeedGrid() {
+
+
+export default function CombinedScreen() {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
-  const [modalVisible, setModalVisible] = useState(false);
-
+  const [viewMode, setViewMode] = useState<'home' | 'grid'>('home');
+  const [refreshing, setRefreshing] = useState(false);
   const fetchPosts = async () => {
     try {
       const response = await fetch(`${BackendUrl}/feed/community/upvotes`);
       const json = await response.json();
-      return json.posts || [];
+      setPosts(json.posts || []);
     } catch (error) {
-      console.error('Error fetching posts', error);
-      return [];
+      console.error('Error fetching posts:', error);
     }
+  }; 
+
+  // Refresh when the screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      fetchPosts();
+    }, [])
+  ); 
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    const refreshedPosts = await fetchPosts();
+    setPosts(refreshedPosts);
+    setRefreshing(false);
   };
 
-  useEffect(() => {
-    async function loadInitialPosts() {
-      const initialPosts = await fetchPosts();
-      setPosts(initialPosts);
-    }
-    loadInitialPosts();
-  }, []);
-
-  const renderPostItem = ({ item }: { item: Post }) => {
+  // Render a grid item for grid view.
+  const renderGridItem = ({ item }: { item: Post }) => {
     const backImageUri = `data:image/jpeg;base64,${item.back_image}`;
     const frontImageUri = `data:image/jpeg;base64,${item.front_image}`;
-
     return (
-      <Pressable
-        style={styles.itemContainer}
-        onPress={() => {
-          setSelectedPost(item);
-          setModalVisible(true);
-        }}
-      >
+      <Pressable style={styles.gridItem} onPress={() => { /* handle detailed view if required */ }}>
         <Image source={{ uri: backImageUri }} style={styles.backImage} resizeMode="cover" />
         <Image source={{ uri: frontImageUri }} style={styles.frontImage} resizeMode="contain" />
       </Pressable>
     );
-  };
+  }; 
+
+  const renderHomeView = () => (
+    <FlatList
+      numColumns={1}
+      data={posts}
+      keyExtractor={(item) => item.id.toString()}
+      renderItem={({ item: post }) => (
+        <View style={styles.homeItem}>
+          <Text style={styles.titleText}>Post #{post.id}</Text>
+          <Image
+            source={{ uri: `data:image/jpeg;base64,${post.back_image}` }}
+            style={styles.homeImage}
+            resizeMode="cover"
+          />
+          <Text>Calories: {post.calories}</Text>
+          <Text>Upvotes: {post.upvotes}</Text>
+        </View>
+      )}
+      refreshing={refreshing}
+      onRefresh={handleRefresh}
+    />
+  ); 
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={posts}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderPostItem}
-        numColumns={1} // Single column layout
-        ListFooterComponent={loadingMore ? <ActivityIndicator size="large" color="#000" /> : null}
-      />
-      {selectedPost && (
-        <Modal
-          visible={modalVisible}
-          animationType="slide"
-          onRequestClose={() => setModalVisible(false)}
-          transparent={false}
-        >
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Post Details</Text>
-            <Image source={{ uri: `data:image/jpeg;base64,${selectedPost.back_image}` }} style={styles.modalBackImage} resizeMode="cover" />
-            <Image source={{ uri: `data:image/jpeg;base64,${selectedPost.front_image}` }} style={styles.modalFrontImage} resizeMode="contain" />
-            <Text>Ingredients: {selectedPost.ingredients}</Text>
-            <Text>Calories: {selectedPost.calories}</Text>
-            <Text>Health Score: {selectedPost.health_score}</Text>
-            <Text>Upvotes: {selectedPost.upvotes}</Text>
-            <Pressable style={styles.closeButton} onPress={() => setModalVisible(false)}>
-              <Text style={styles.closeButtonText}>Close</Text>
-            </Pressable>
-          </View>
-        </Modal>
+    <View style={{ flex: 1 }}>
+      {viewMode === 'grid' ? (
+        <FlatList
+          data={posts}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderGridItem}
+          numColumns={2}
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
+          contentContainerStyle={styles.gridContainer}
+        />
+      ) : (
+        renderHomeView()
       )}
+      {/* Floating swap button */}
+      <Pressable
+        style={styles.floatingButton}
+        onPress={() => setViewMode(viewMode === 'home' ? 'grid' : 'home')}
+      >
+        <Text style={{ color: '#fff', fontSize: 24 }}>{viewMode === 'home' ? '🔳' : '🔲'}</Text>
+      </Pressable>
     </View>
   );
-}
+} 
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f0f0f0',
-    padding: 10,
+  gridContainer: {
+    padding: 5,
   },
-  itemContainer: {
-    width: '100%',
-    marginVertical: 10,
+  gridItem: {
+    flex: 1,
+    margin: 5,
+    aspectRatio: 1,
     borderRadius: 15,
     overflow: 'hidden',
     backgroundColor: '#fff',
+    position: 'relative',
   },
   backImage: {
     width: '100%',
-    height: 200,
-    borderRadius: 15,
+    height: '100%',
   },
   frontImage: {
     position: 'absolute',
-    top: 10,
-    right: 10,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    top: 5,
+    right: 5,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     borderWidth: 2,
     borderColor: '#fff',
   },
-  modalContainer: {
-    flex: 1,
-    padding: 20,
+  homeItem: {
+    padding: 10,
+    marginVertical: 8,
     backgroundColor: '#fff',
+    borderRadius: 10,
+    marginHorizontal: 10,
   },
-  modalTitle: {
-    fontSize: 28,
+  titleText: {
+    fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
   },
-  modalBackImage: {
+  homeImage: {
     width: '100%',
     height: 200,
-    borderRadius: 15,
-    marginBottom: 15,
+    borderRadius: 10,
+    marginVertical: 10,
   },
-  modalFrontImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    alignSelf: 'center',
-    marginBottom: 15,
-    borderWidth: 2,
-    borderColor: '#fff',
-  },
-  closeButton: {
-    marginTop: 20,
-    padding: 10,
-    backgroundColor: '#2196F3',
-    alignSelf: 'center',
-    borderRadius: 8,
-  },
-  closeButtonText: {
-    color: '#fff',
-    fontSize: 18,
+  // Floating button styles
+  floatingButton: {
+    position: 'absolute',
+    bottom: 100,
+    right: 20,
+    backgroundColor: '#007AFF',
+    borderRadius: 30,
+    width: 60,
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    zIndex: 999, // Ensure the button is on top
   },
 });

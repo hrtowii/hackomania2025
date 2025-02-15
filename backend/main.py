@@ -9,7 +9,7 @@ import base64
 from dotenv import load_dotenv
 import os
 import datetime
-
+from flask_cors import CORS
 load_dotenv()
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -17,7 +17,7 @@ client = openai.OpenAI(api_key=openai.api_key)
 
 app = Flask(__name__)
 app.secret_key = "definitely not plaintext"
-
+CORS(app, origins=r"*", resources=r"*")
 login_manager = LoginManager()
 login_manager.init_app(app)
 

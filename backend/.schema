@@ -25,7 +25,9 @@ CREATE TABLE Posts (
 CREATE TABLE Challenges (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT,
-    description TEXT
+    goal TEXT,
+    start_date DATE,
+    end_date DATE,
     description TEXT
 );
 
