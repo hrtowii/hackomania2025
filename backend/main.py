@@ -46,7 +46,7 @@ def signup():
     except sqlite3.IntegrityError:
         return make_response(jsonify(error="Database error"), 500)
 
-    return make_response(jsonify(success=True))
+    return make_response(jsonify(status=200))
 
 @app.route("/auth/login", methods=["POST"])
 def login():
@@ -94,7 +94,11 @@ def get_user(user_id):
             "SELECT id FROM Posts WHERE userId = (?)", (user_id,))
         posts = cur.fetchall()
 
-    return make_response(jsonify(posts=posts, health_score=health_score, challenge_progress=challenge_progress))
+    all_posts = []
+    for i in posts:
+        all_posts.append(i['id'])
+
+    return make_response(jsonify(posts=all_posts, health_score=health_score, challenge_progress=challenge_progress))
 
 @app.route("/users/<user_id>/friends/add/<friend_id>/", methods=["GET"])
 def add_friend(user_id, friend_id):
@@ -167,6 +171,52 @@ def upload():
         return make_response(jsonify(error=str(e)), 400)
 
     return make_response(jsonify(status=200))
+
+
+
+@app.route("/feed/<user_id>/friends/<sort_method>")
+def friend_feed(user_id, sort_method):
+
+    with sqlite3.connect('database.db') as con:
+        con.row_factory = sqlite3.Row
+        cur = con.cursor()
+        cur.execute(
+            "SELECT friends FROM Users WHERE id = (?)", (user_id,))
+        rows = cur.fetchall()
+
+    try:
+            friendlist = rows[0]['friends']
+    except:
+        return make_response(jsonify(error="user doesn't exist", status=400))
+
+    friendlist_parsed = json.loads(friendlist)
+
+    print(friendlist_parsed)
+
+    placeholders = ','.join(['?'] * len(friendlist_parsed))
+
+    print(placeholders)
+
+
+    sort_options = {
+        "recency": "timestamp ASC",
+        "upvotes": "upvotes DESC",
+        "health": "health_score DESC"
+    }
+
+    with sqlite3.connect('database.db') as con:
+        con.row_factory = sqlite3.Row
+        cur = con.cursor()
+        cur.execute(
+            f"SELECT * FROM Posts WHERE userId IN ({placeholders}) ORDER BY {sort_options.get(sort_method, 'upvotes DESC')}", tuple(friendlist_parsed))
+        rows = cur.fetchall()
+
+    posts = []
+    for post in rows:
+        post = dict(post)
+        posts.append(post)
+
+    return make_response(jsonify(posts=posts,status=200))
 
 if __name__ == "__main__":
     app.run(port=8080)

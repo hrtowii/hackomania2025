@@ -11,7 +11,8 @@ CREATE TABLE Users (
 CREATE TABLE Posts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     userId INTEGER,
-    image_base64 TEXT, -- encode image into base64 string, store here.
+    front_image TEXT, -- encode image into base64 string, store here.
+    back_image TEXT, -- encode image into base64 string, store here.
     ingredients TEXT, --  array of ingredients
     calories INTEGER,
     health_score REAL,
