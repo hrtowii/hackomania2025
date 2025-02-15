@@ -129,12 +129,11 @@ export default function CombinedScreen() {
                 style={styles.homeImage}
                 resizeMode="cover"
               />
-              <Text>Calories: {post.calories}</Text>
             <View style={styles.row}>
-                <Text>Upvotes: {post.upvotes}</Text>
               <Pressable onPress={() => handleUpvote(post.id)} style={styles.upvoteButton}>
                 <FontAwesome6 name="thumbs-up" size={20} color="#007AFF" />
               </Pressable>
+              <Text>{post.upvotes}</Text>
             </View>
             </View>
           </Pressable>
@@ -248,7 +247,7 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
   },
   upvoteButton: {
     marginLeft: 10,

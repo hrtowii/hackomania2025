@@ -10,3 +10,5 @@ backend/database.db
 *.db
 frontend/context/backendUrl.tsx
 backend/database.db
+frontend/context/backendUrl.tsx
+backend/database.db
