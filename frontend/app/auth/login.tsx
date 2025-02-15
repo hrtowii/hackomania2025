@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { TouchableOpacity, StyleSheet, View, Alert } from 'react-native';
 import { Text, Button, TextInput } from 'react-native-paper';
 import { router } from 'expo-router';
-
 import { useAuth } from '@/context/authContext';
-
+import {BackendUrl} from '@/context/backendUrl';
 interface LoginState {
   value: string;
   error: string;
@@ -16,28 +15,30 @@ export default function LoginScreen() {
   const { login } = useAuth();
 
   const handleLogin = async () => {
-    // const emailError = emailValidator(email.value);
-    // const passwordError = passwordValidator(password.value);
-    
-    // if (emailError || passwordError) {
-    //   setEmail({ ...email, error: emailError });
-    //   setPassword({ ...password, error: passwordError });
-    //   return;
-    // }
+    // Simple validation with error messages
+    let hasError = false;
+    if (!email.value) {
+      setEmail((prev) => ({ ...prev, error: 'Email is required' }));
+      hasError = true;
+    }
+    if (!password.value) {
+      setPassword((prev) => ({ ...prev, error: 'Password is required' }));
+      hasError = true;
+    }
+    if (hasError) return;
 
     try {
-      const response = await fetch('http://localhost:8080/auth/login', {
+      const response = await fetch(`${BackendUrl}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.value, password: password.value }),
       });
-
       const data = await response.json();
       
       if (response.ok) {
         login(data.id);
       } else {
-        Alert.alert('Error', data.error);
+        Alert.alert('Error', data.error || 'Invalid credentials.');
       }
     } catch (error) {
       Alert.alert('Error', 'Login failed. Please try again.');
@@ -45,34 +46,28 @@ export default function LoginScreen() {
   };
 
   return (
-    // <Background>
-      // <BackButton goBack={() => router.back()} />
-      // <Logo />
-      // <Header>Welcome Back</Header>
-      <>
+    <View style={styles.container}>
       <TextInput
         label="Email"
         value={email.value}
         onChangeText={(text) => setEmail({ value: text, error: '' })}
         error={!!email.error}
-        // errorText={email.error}
         autoCapitalize="none"
         keyboardType="email-address"
+        style={styles.input}
       />
+      {email.error ? <Text style={styles.errorText}>{email.error}</Text> : null}
       <TextInput
         label="Password"
         secureTextEntry
         value={password.value}
         onChangeText={(text) => setPassword({ value: text, error: '' })}
         error={!!password.error}
-        // errorText={password.error}
+        style={styles.input}
       />
-      {/* <View style={styles.forgotPassword}>
-        <TouchableOpacity onPress={() => router.push('/auth/reset')}>
-          <Text style={styles.forgot}>Forgot Password?</Text>
-        </TouchableOpacity>
-      </View> */}
-      <Button mode="contained" onPress={handleLogin}>
+      {password.error ? <Text style={styles.errorText}>{password.error}</Text> : null}
+
+      <Button mode="contained" onPress={handleLogin} style={styles.button}>
         Login
       </Button>
       <View style={styles.row}>
@@ -81,27 +76,36 @@ export default function LoginScreen() {
           <Text style={styles.link}>Sign Up</Text>
         </TouchableOpacity>
       </View>
-      </>
-    // </Background>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  forgotPassword: {
-    width: '100%',
-    alignItems: 'flex-end',
-    marginBottom: 10,
+  container: {
+    flex: 1,
+    padding: 20,
+    justifyContent: 'center',
+    backgroundColor: '#f7f7f7'
+  },
+  input: {
+    marginBottom: 5,
+  },
+  button: {
+    marginTop: 15,
+    paddingVertical: 5,
   },
   row: {
     flexDirection: 'row',
-    marginTop: 4,
-  },
-  forgot: {
-    fontSize: 13,
-    // color: theme.colors.secondary,
+    marginTop: 10,
+    justifyContent: 'center',
   },
   link: {
     fontWeight: 'bold',
-    // color: theme.colors.primary,
+    color: '#0a7ea4',
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
+    marginLeft: 4,
   },
 });

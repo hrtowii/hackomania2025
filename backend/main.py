@@ -1,4 +1,3 @@
-import json
 import sqlite3
 from flask import Flask, jsonify, request
 from flask_login import LoginManager
@@ -39,7 +38,7 @@ def signup():
 
     try:
         rows[0]['email']
-        return jsonify(error="Email already exists"), 400
+        return jsonify(error="Email already exists", status=400)
     except:
         pass
 
@@ -70,11 +69,11 @@ def login():
         db_password = rows[0]['password']
         user_id = rows[0]['id']
         if db_password == password:
-            return jsonify(id=user_id), 200
+            return jsonify(id=user_id, status=200)
         else:
-            return jsonify(error="Wrong password"), 400
+            return jsonify(error="Wrong password", status=400)
     except:
-        return jsonify(error="Account doesn't exist"), 400
+        return jsonify(error="Account doesn't exist", status=400)
 
 @app.route("/users/<user_id>/", methods=["GET"])
 def get_user(user_id):
@@ -90,7 +89,7 @@ def get_user(user_id):
         health_score = rows[0]['health_score_avg']
         challenge_progress = rows[0]['challenge_progress']
     except:
-        return jsonify(error="user doesn't exist"), 400
+        return jsonify(error="user doesn't exist", status=400)
 
     with sqlite3.connect('database.db') as con:
         con.row_factory = sqlite3.Row
@@ -98,10 +97,11 @@ def get_user(user_id):
         cur.execute(
             "SELECT id FROM Posts WHERE userId = (?)", (user_id,)) # sql query
         rows = cur.fetchall()
+        print(rows)
 
     posts = rows
 
-    return jsonify(posts=posts, health_score=health_score, challenge_progress=challenge_progress), 200
+    return jsonify(posts=posts, health_score=health_score, challenge_progress=challenge_progress, status=200)
 
 
 @app.route("/users/<user_id>/friends/add/<friend_id>/", methods=["GET"])
@@ -215,6 +215,7 @@ def upload():
 @app.route("/posts/<post_id>/", methods=["GET"])
 def get_post_by_id(post_id):
     pass
+
 
 if __name__ == "__main__":
     app.run(port=8080)
