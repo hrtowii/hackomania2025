@@ -23,7 +23,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const storedUserId = await AsyncStorage.getItem(USER_ID_KEY);
         if (storedUserId) {
           setUserId(storedUserId);
-          router.replace('/(tabs)');
+          // router.replace('/(tabs)');
         }
       } catch (error) {
         console.error('Error loading stored user ID:', error);
