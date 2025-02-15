@@ -8,3 +8,4 @@ backend/database.db
 backend/database.db
 backend/database.db
 *.db
+frontend/context/backendUrl.tsx
