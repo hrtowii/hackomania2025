@@ -23,15 +23,18 @@ type ItemProps = {
   title: string;
 };
 
-const getImage = async () => {
-  try {
-    const response = await fetch(`${BackendUrl}/posts`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email.value, password: password.value }),
-    });
-    const data = await response.json();
-};
+// const getImage = async () => {
+//   try {
+//     const response = await fetch(`${BackendUrl}/posts`, {
+//       method: 'GET',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify({ email: email.value, password: password.value }),
+//     });
+//     const data = await response.json();
+//   } catch {
+
+//   }
+// };
 
 const Item = ({title}: ItemProps) => (
   <View style={styles.item}>
