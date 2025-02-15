@@ -5,5 +5,4 @@
 
 ## Frontend: React Native
 
-
 ## Backend: Flask / Express ???
