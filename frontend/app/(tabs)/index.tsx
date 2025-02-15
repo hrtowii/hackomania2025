@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { View, FlatList, RefreshControl, ScrollView, Image, Text, Pressable, StyleSheet, Modal } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { BackendUrl } from '@/context/backendUrl'; 
+import { BackendUrl } from '@/context/backendUrl';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { useAuth } from '@/context/authContext';
 
@@ -32,7 +32,15 @@ export default function CombinedScreen() {
     } catch (error) {
       console.error('Error fetching posts:', error);
     }
-  }; 
+  };
+
+  // Use useEffect to periodically refresh the posts (every 30 seconds).
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchPosts();
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -73,58 +81,98 @@ export default function CombinedScreen() {
     setRefreshing(false);
   };
 
-  const openModal = (post: Post) => {
-    setSelectedPost(post);
-    setModalVisible(true);
+  // Function to trigger the upvote API call.
+  const handleUpvote = async (postId: number) => {
+    // Optimistically update UI by incrementing the upvote counter
+    setPosts(prevPosts =>
+      prevPosts.map(post =>
+        post.id === postId ? { ...post, upvotes: post.upvotes + 1 } : post
+      )
+    );
+  
+    try {
+      const response = await fetch(`${BackendUrl}/posts/upvote/${postId}`);
+      if (!response.ok) {
+        // Roll back optimistic update if the API call fails
+        setPosts(prevPosts =>
+          prevPosts.map(post =>
+            post.id === postId ? { ...post, upvotes: post.upvotes - 1 } : post
+          )
+        );
+        console.error('Failed to upvote post with id', postId);
+      }
+      // Optionally, you can update only the affected post’s upvote count based on the response if needed.
+    } catch (error) {
+      // Roll back the update if an error occurs during the fetch call
+      setPosts(prevPosts =>
+        prevPosts.map(post =>
+          post.id === postId ? { ...post, upvotes: post.upvotes - 1 } : post
+        )
+      );
+      console.error('Error during upvote for post', postId, error);
+    }
   };
 
-  const renderGridItem = ({ item }: { item: Post }) => {
-
-  }; 
-
+  // Render the list (home) view.
   const renderHomeView = () => (
     <FlatList
-      key={viewMode} // Add key prop to force re-render
+      key={viewMode}
       numColumns={1}
       data={posts}
       keyExtractor={(item) => item.id.toString()}
       renderItem={({ item: post }) => (
         <Pressable onPress={() => openModal(post)}>
-          <View style={styles.homeItem}>
-            <Text style={styles.titleText}>{post.username ? post.username : `User ${post.userId}`}</Text>
-            <Image
-              source={{ uri: `data:image/jpeg;base64,${post.back_image}` }}
-              style={styles.homeImage}
-              resizeMode="cover"
-            />
-            <Text>Calories: {post.calories}</Text>
-            <Text>Upvotes: {post.upvotes}</Text>
-          </View>
-        </Pressable>
+            <View style={styles.homeItem}>
+              <Text style={styles.titleText}>{post.username ? post.username : `User ${post.userId}`}</Text>
+              <Image
+                source={{ uri: `data:image/jpeg;base64,${post.back_image}` }}
+                style={styles.homeImage}
+                resizeMode="cover"
+              />
+              <Text>Calories: {post.calories}</Text>
+            <View style={styles.row}>
+                <Text>Upvotes: {post.upvotes}</Text>
+              <Pressable onPress={() => handleUpvote(post.id)} style={styles.upvoteButton}>
+                <FontAwesome6 name="thumbs-up" size={20} color="#007AFF" />
+              </Pressable>
+            </View>
+            </View>
+          </Pressable>
       )}
       refreshing={refreshing}
       onRefresh={handleRefresh}
     />
-  );  
+  );
+
+  const openModal = (post: Post) => {
+    setSelectedPost(post);
+    setModalVisible(true);
+  };
 
   return (
     <View style={{ flex: 1 }}>
       {viewMode === 'grid' ? (
         <FlatList
-          key={viewMode} // Add key prop to force re-render
+          key={viewMode}
           data={posts}
           keyExtractor={(item) => item.id.toString()}
-          renderItem={({item: post}) => {
+          renderItem={({ item: post }) => {
             const backImageUri = `data:image/jpeg;base64,${post.back_image}`;
             const frontImageUri = `data:image/jpeg;base64,${post.front_image}`;
             return (
               <Pressable style={styles.gridItem} onPress={() => openModal(post)}>
-                <Image source={{ uri: backImageUri }} style={styles.backImage} resizeMode="cover" />
-                <Image source={{ uri: frontImageUri }} style={styles.frontImage} resizeMode="contain" />
+                <View style={styles.imageContainer}>
+                  <Image source={{ uri: backImageUri }} style={styles.backImage} resizeMode="cover" />
+                  <Image source={{ uri: frontImageUri }} style={styles.frontImage} resizeMode="contain" />
+                  <Pressable style={styles.gridUpvoteButton} onPress={() => handleUpvote(post.id)}>
+                    <FontAwesome6 name="thumbs-up" size={18} color="#fff" />
+                    <Text style={styles.gridUpvoteText}>{post.upvotes}</Text>
+                  </Pressable>
+                </View>
+                <Text style={styles.itemText}>Post #{post.id}</Text>
               </Pressable>
             );
           }}
-          
           numColumns={2}
           refreshing={refreshing}
           onRefresh={handleRefresh}
@@ -134,40 +182,33 @@ export default function CombinedScreen() {
         renderHomeView()
       )}
       <Pressable
-        style={styles.floatingButton} 
+        style={styles.floatingButton}
         onPress={() => setViewMode(viewMode === 'home' ? 'grid' : 'home')}
       >
         <Text style={{ color: '#fff', fontSize: 24 }}>{viewMode === 'home' ? '❤️' : '🌻'}</Text>
       </Pressable>
       {selectedPost && (
-      <Modal
-          visible={modalVisible}
-          animationType="slide"
-          onRequestClose={() => setModalVisible(false)}
-          transparent={false}
-        >
+        <Modal visible={modalVisible} animationType="slide" onRequestClose={() => setModalVisible(false)}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Post Details</Text>
             <Image
               source={{ uri: `data:image/jpeg;base64,${selectedPost.back_image}` }}
-              // source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
               style={styles.modalBackImage}
               resizeMode="cover"
             />
             <Image
               source={{ uri: `data:image/jpeg;base64,${selectedPost.front_image}` }}
-              // source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
               style={styles.modalFrontImage}
               resizeMode="contain"
             />
             <View style={styles.detailsContainer}>
               <Text style={styles.detailTitle}>Ingredients:</Text>
               {selectedPost.ingredients
-                .replace(/[\[\]"]/g, '') // Remove brackets and quotation marks
-                .split(',') // Split by commas
+                .replace(/[\[\]"]/g, '')
+                .split(',')
                 .map((ingredient, index) => (
                   <Text key={index} style={styles.ingredientText}>
-                    • {ingredient.trim()} {/* Trim whitespace and render */}
+                    • {ingredient.trim()}
                   </Text>
                 ))}
               <Text style={styles.detailText}>Calories: {selectedPost.calories}</Text>
@@ -182,7 +223,7 @@ export default function CombinedScreen() {
       )}
     </View>
   );
-} 
+}
 
 const styles = StyleSheet.create({
   gridContainer: {
@@ -197,21 +238,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     position: 'relative',
   },
-  backImage: {
-    width: '100%',
-    aspectRatio: "1 / 1",
-    borderRadius: 15,
-  },
-  frontImage: {
-    position: 'absolute',
-    top: 5,
-    right: 5,
-    // width: 40,
-    // height: 40,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: '#fff',
-  },
   homeItem: {
     padding: 10,
     marginVertical: 8,
@@ -219,14 +245,22 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginHorizontal: 10,
   },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  upvoteButton: {
+    marginLeft: 10,
+    padding: 5,
+  },
   titleText: {
     fontSize: 18,
     fontWeight: 'bold',
   },
   homeImage: {
     width: '100%',
-    aspectRatio: "4 / 3",
-    // height: 200,
+    aspectRatio: '4 / 3',
     borderRadius: 10,
     marginVertical: 10,
   },
@@ -300,5 +334,47 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: '#fff',
     fontSize: 18,
+  },
+  imageContainer: {
+    position: 'relative',
+    width: '100%',
+    height: 150,
+  },
+  backImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 15,
+  },
+  frontImage: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  itemText: {
+    position: 'absolute',
+    bottom: 5,
+    left: 5,
+    color: '#000',
+    fontSize: 16,
+  },
+  gridUpvoteButton: {
+    position: 'absolute',
+    bottom: 5,
+    right: 5,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 15,
+    paddingHorizontal: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  gridUpvoteText: {
+    color: '#fff',
+    marginLeft: 3,
+    fontSize: 14,
   },
 });
