@@ -39,7 +39,7 @@ def signup():
 
     try:
         rows[0]['email']
-        return jsonify(error="Email already exists", status=400)
+        return jsonify(error="Email already exists"), 400
     except:
         pass
 
@@ -49,7 +49,7 @@ def signup():
                         (email, password, username))
         con.commit()
 
-        return jsonify(status=200)
+        return jsonif), 200
 
 
 @app.route("/auth/login", methods=["POST"])
@@ -70,11 +70,11 @@ def login():
         db_password = rows[0]['password']
         user_id = rows[0]['id']
         if db_password == password:
-            return jsonify(id=user_id, status=200)
+            return jsonify(id=user_id), 200
         else:
-            return jsonify(error="Wrong password", status=400)
+            return jsonify(error="Wrong password"), 400
     except:
-        return jsonify(error="Account doesn't exist", status=400)
+        return jsonify(error="Account doesn't exist"), 400
 
 @app.route("/users/<user_id>/", methods=["GET"])
 def get_user(user_id):
@@ -90,7 +90,7 @@ def get_user(user_id):
         health_score = rows[0]['health_score_avg']
         challenge_progress = rows[0]['challenge_progress']
     except:
-        return jsonify(error="user doesn't exist", status=400)
+        return jsonify(error="user doesn't exist"), 400
 
     with sqlite3.connect('database.db') as con:
         con.row_factory = sqlite3.Row
@@ -101,7 +101,7 @@ def get_user(user_id):
 
     posts = rows
 
-    return jsonify(posts=posts, health_score=health_score, challenge_progress=challenge_progress, status=200)
+    return jsonify(posts=posts, health_score=health_score, challenge_progress=challenge_progress), 200
 
 
 @app.route("/users/<user_id>/friends/<friend_id>/", methods=["GET"])
@@ -117,7 +117,7 @@ def add_friend(user_id, friend_id):
     try:
         friends_friendlist = rows[0]['friends']
     except:
-        return jsonify(error="user doesn't exist", status=400)
+        return jsonify(error="user doesn't exist"), 400
 
     with sqlite3.connect('database.db') as con:
         con.row_factory = sqlite3.Row
@@ -129,7 +129,7 @@ def add_friend(user_id, friend_id):
     try:
         user_friendlist = rows[0]['friends']
     except:
-        return jsonify(error="user doesn't exist", status=400)
+        return jsonify(error="user doesn't exist"), 400
 
     # i know this is terrible practice dont murder me but i cant be bothered to deal with the foreign key shit
     # hopefully this doesnt bckfire :)
@@ -152,9 +152,9 @@ def add_friend(user_id, friend_id):
                         (json.dumps(friends_friendlist_parsed), friend_id))
         con.commit()
 
-    posts = rows
+    pass
 
-    
+
 
 @app.route("/posts", methods=["GET", "POST"])
 def posts():
@@ -172,20 +172,20 @@ def upload():
     data = request.get_json()
 
     if not data or 'image_base64' not in data:
-        return jsonify(error="No image found", status=400)
+        return jsonify(error="No image found"), 400
 
     image_b64 = data['image_base64']
     vis = data['visibility']# DEFAULTS TO comm
     user_id = data['userID'] # Validation below
 
     if not user_id:
-        return jsonify(error="No user ID provided", status=400)
+        return jsonify(error="No user ID provided"), 400
 
     try:
         img = decode_img(image_b64)
 
     except ValueError as e:
-        return jsonify(error=str(e), status=400)
+        return jsonify(error=str(e)), 400
 
 
     # ins api stuff here 😥😥😥😥😥😥
