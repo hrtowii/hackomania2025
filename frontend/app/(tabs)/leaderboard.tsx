@@ -1,12 +1,13 @@
 import { BackendUrl } from '@/context/backendUrl';
 import React, { useEffect, useState } from 'react';
-import { View, ActivityIndicator, Text, StyleSheet, Image, TextInput } from 'react-native';
+import { View, ActivityIndicator, Text, StyleSheet, Image, TextInput, Button, Pressable } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import Leaderboard from 'react-native-leaderboard';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Modal from "react-native-modal";
 
 export default function LeaderboardComponent() {
     const [leaderboardData, setLeaderboardData] = useState([]);
@@ -93,6 +94,43 @@ export default function LeaderboardComponent() {
         );
     }
 
+
+
+    function ModalTester() {
+        const [isModalVisible, setModalVisible] = useState(false);
+    
+        const toggleModal = () => {
+            setModalVisible(!isModalVisible);
+        };
+    
+        return (
+            <View>
+                <Pressable onPress={toggleModal} style={styles.viewDetailsButton}>
+                    <Text style={styles.viewDetailsText}>Show challenge details!</Text>
+                </Pressable>
+    
+                <Modal isVisible={isModalVisible} onBackdropPress={toggleModal}>
+                <View style={styles.modalContainer}>
+                    <View style={styles.card}>
+                        <Text style={styles.cardTitle}>Challenge Details</Text>
+                        <Text style={styles.cardDescription}>
+                            #1: Veggie Victory 🥦. Sneak some greens into your plate and level up your meal!{"\n"}{"\n"}
+                            #2: Grain Gains 🌾. Swap in whole grains for a meal that fuels you right.{"\n"}{"\n"}
+                            #3: Power Up with Protein 🍳. Keep your plate packed with muscle-friendly goodness!{"\n"}{"\n"}
+                            #4: Try No-Fry 🚫🍟. Ditch the fryer for a meal that treats your body better.{"\n"}{"\n"}
+                            #5: Fuel-Up Faceoff 👑🍴. Earn points for every healthy choice! The top scorer proves they've got the best food game.{"\n"}
+                        </Text>
+                        <Pressable onPress={toggleModal} style={styles.closeButton}>
+                            <Text style={styles.closeButtonText}>Got It!</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </Modal>
+            </View>
+        );
+    }    
+  
+
     return (
         <SafeAreaView style={styles.container}>
         <View style={styles.container}>
@@ -114,7 +152,9 @@ export default function LeaderboardComponent() {
                 </Picker>
 
 
+    
             </View>
+            <ModalTester />
             <Text style={styles.label}>Num of entries:</Text>
             <TextInput
                     style={styles.input}
@@ -137,6 +177,58 @@ export default function LeaderboardComponent() {
 }
 
 const styles = StyleSheet.create({
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    card: {
+        width: '80%',
+        padding: 20,
+        backgroundColor: '#fff',
+        borderRadius: 15,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 5,
+        alignItems: 'center',
+    },
+    cardTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#6a11cb',
+        marginBottom: 10,
+    },
+    cardDescription: {
+        fontSize: 16,
+        color: '#333',
+        textAlign: 'center',
+        marginBottom: 15,
+    },
+    closeButton: {
+        backgroundColor: '#6a11cb',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 10,
+    },
+    closeButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    showButton: {
+        backgroundColor: '#2575fc',
+        padding: 10,
+        borderRadius: 8,
+        alignSelf: 'center',
+        marginTop: 10,
+    },
+    showButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
     container: {
         flex: 1,
         backgroundColor: '#f5f5f5',
@@ -223,4 +315,20 @@ const styles = StyleSheet.create({
         padding: 10,
         margin: 10
     },
+    viewDetailsButton: {
+        backgroundColor: '#2575fc',
+        paddingVertical: 6,
+        paddingHorizontal: 20,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        alignSelf: 'center',
+        marginVertical: 10,
+    },
+    
+    viewDetailsText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    }    
 });
