@@ -18,7 +18,6 @@ export default function CameraScreen() {
     const [facing, setFacing] = useState<'front' | 'back'>('back');
     const [pictures, setPictures] = useState<{ front: PictureData | null, back: PictureData | null }>({ front: null, back: null });
     const [permission, requestPermission] = useCameraPermissions();
-    const navigation = useNavigation();
     const { userId } = useAuth();
     const cameraRef = useRef<CameraView>(null);
     const [height, setHeight] = useState(0);

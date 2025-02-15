@@ -1,8 +1,9 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect} from 'react';
 import { View, FlatList, RefreshControl, ScrollView, Image, Text, Pressable, StyleSheet, Modal } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { BackendUrl } from '@/context/backendUrl';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { useFonts, Rubik_400Regular, Rubik_900Black_Italic } from "@expo-google-fonts/rubik";
 import { useAuth } from '@/context/authContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -25,6 +26,10 @@ export default function CombinedScreen() {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [userIds, setUserIds] = useState(null)
+  const [fontsLoaded] = useFonts({
+    'Rubik_400Regular': Rubik_400Regular,
+    'Rubik_900Black_Italic': Rubik_900Black_Italic,
+  });
   const fetchPosts = async () => {
     try {
       const response = await fetch(`${BackendUrl}/feed/community/upvotes`);
@@ -54,7 +59,7 @@ export default function CombinedScreen() {
     return () => clearInterval(interval);
   }, []);
 
-  useFocusEffect(
+  useEffect(
     useCallback(() => {
       fetchPosts();
     }, [])
@@ -173,9 +178,7 @@ export default function CombinedScreen() {
                     <Text style={styles.upvoteCountTextSmall}>{post.upvotes}</Text>
                   </Pressable>
                 </View>
-                <Text style={styles.titleText}>
-                {post.username ? post.username : `User ${post.userId}`}
-                </Text>
+                <Text style={styles.itemText}>{post.username ? post.username : `User ${post.userId}`}</Text>
               </Pressable>
             );
           }}
@@ -242,13 +245,13 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     borderRadius: 15,
     overflow: 'hidden',
-    backgroundColor: '#fff',
+    backgroundColor: '#5c8001',
     position: 'relative',
   },
   homeItem: {
     padding: 10,
     marginVertical: 8,
-    backgroundColor: '#fff',
+    backgroundColor: '#5c8001',
     borderRadius: 10,
     marginHorizontal: 10,
   },
@@ -259,8 +262,8 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontSize: 18,
-    fontWeight: 'bold',
-    marginRight: 15,
+    fontFamily: 'Rubik_400Regular',
+    
   },
   homeImage: {
     width: '100%',
@@ -343,6 +346,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     width: '100%',
     height: 150,
+    backgroundColor: "#5c8001",
   },
   backImage: {
     width: '100%',
@@ -365,6 +369,7 @@ const styles = StyleSheet.create({
     left: 5,
     color: '#000',
     fontSize: 16,
+    fontFamily: 'Rubik_400Regular'
   },
   header: {
     width: '100%',
