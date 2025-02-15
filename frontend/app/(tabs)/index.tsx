@@ -2,7 +2,7 @@ import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { vw, vh } from 'react-native-expo-viewport-units'; // For viewport-based sizes
-// import FastImage from 'react-native-fast-image';
+import FastImage from 'react-native-fast-image';
 import { FlatList } from 'react-native-gesture-handler';
 
 type ItemData = {
@@ -37,11 +37,11 @@ type ItemProps = {
 const Item = ({title}: ItemProps) => (
   <View style={styles.item}>
     <View style={styles.hotbar}>
-      <Image source={require('@/assets/images/\BeFed.png')} style={styles.reactLogo} />
+      <FastImage source={require('@/assets/images/\BeFed.png')} style={styles.reactLogo} />
       <Text style={styles.title}>{title}</Text>
     </View>
 
-    <Image source={require('@/assets/images/\BeFed.png')} style={styles.smallimage} />
+    <FastImage source={require('@/assets/images/\BeFed.png')} style={styles.smallimage} />
   </View>
 );
 
@@ -51,64 +51,79 @@ export default function HomeScreen() {
   return (
   <SafeAreaProvider>
     <SafeAreaView style={styles.container}>
-      {/* <FlatList
+      <FlatList
         data={data}
         renderItem={({item}) => <Item title={item.title} />}
         keyExtractor={item => item.id}
-      /> */}
+      />
     </SafeAreaView>
   </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
-    alignItems: 'flex-start',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'left',
-    marginBottom: 0,
-    letterSpacing: 1,
-    fontFamily: 'Arial',
-  },
-  smallimage: {
-    height: '100%',
-    width: '100%',
-    borderRadius: 25,
-    objectFit: 'contain',
-  },
   container: {
     flex: 1,
-    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+    padding: 10,
   },
-  item: {
-    backgroundColor: 'white',
-    borderRadius: 25,
-    height: vh(50),
-    width: vw(90),
-    alignItems: 'center',
-    justifyContent: 'center',
-    columnGap: 20,
-    marginVertical: 10,
-    marginHorizontal: 10,
-    padding: 50,
-    shadowRadius: 10,
-  },
-  reactLogo: {
-    height: 50,
-    width: 50,
-    borderRadius: 25,
-  },
-  hotbar: {
+  itemContainer: {
     width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    gap: 12,
+    marginVertical: 10,
+    borderRadius: 15,
+    overflow: 'hidden',
+    backgroundColor: '#fff',
+  },
+  backImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 15,
+  },
+  frontImage: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  modalContainer: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#fff',
+  },
+  modalTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  modalBackImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 15,
+    marginBottom: 15,
+  },
+  modalFrontImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    alignSelf: 'center',
+    marginBottom: 15,
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  closeButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: '#2196F3',
+    alignSelf: 'center',
+    borderRadius: 8,
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 18,
   },
 });
