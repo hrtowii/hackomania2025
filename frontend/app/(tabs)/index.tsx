@@ -111,7 +111,7 @@ export default function CombinedScreen() {
         keyExtractor={(item) => item.id.toString()}
         ListHeaderComponent={(
           <View style={styles.header}>
-            <Image source={require('@/assets/images/BeFed.png')} style={styles.banner} />
+            <Image source={require('@/assets/images/befedblack.png')} style={styles.banner} />
           </View>
         )}
         renderItem={({ item: post }) => (
@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
   banner: {
     width: '100%',
     height: '100%',
-    resizeMode: 'contain',
+    resizeMode: 'cover',
   },
   imageWrapper: {
     position: 'relative',
