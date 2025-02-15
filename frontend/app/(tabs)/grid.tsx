@@ -60,14 +60,14 @@ export default function CommunityFeedGrid() {
         }}
       >
         <Image
-          // source={{ uri: backImageUri }}
-          source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
+          source={{ uri: backImageUri }}
+          // source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
           style={styles.backImage}
           resizeMode="cover"
         />
         <Image
-          // source={{ uri: frontImageUri }}
-          source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
+          source={{ uri: frontImageUri }}
+          // source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
           style={styles.frontImage}
           resizeMode="contain"
         />
@@ -97,14 +97,14 @@ export default function CommunityFeedGrid() {
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Post Details</Text>
             <Image
-              // source={{ uri: `data:image/jpeg;base64,${selectedPost.back_image}` }}
-              source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
+              source={{ uri: `data:image/jpeg;base64,${selectedPost.back_image}` }}
+              // source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
               style={styles.modalBackImage}
               resizeMode="cover"
             />
             <Image
-              // source={{ uri: `data:image/jpeg;base64,${selectedPost.front_image}` }}
-              source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
+              source={{ uri: `data:image/jpeg;base64,${selectedPost.front_image}` }}
+              // source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
               style={styles.modalFrontImage}
               resizeMode="contain"
             />

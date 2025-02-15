@@ -59,6 +59,7 @@ export default function CameraScreen() {
                     userID: parseInt(userId!),
                     visibility: "public"
                 };
+                console.log(payload)
 
                 // POST the payload to the backend
                 const response = await fetch(`${BackendUrl}/posts/upload`, {

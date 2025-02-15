@@ -2,7 +2,7 @@ import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { vw, vh } from 'react-native-expo-viewport-units'; // For viewport-based sizes
-import FastImage from 'react-native-fast-image';
+// import FastImage from 'react-native-fast-image';
 import { FlatList } from 'react-native-gesture-handler';
 
 type ItemData = {
@@ -37,11 +37,11 @@ type ItemProps = {
 const Item = ({title}: ItemProps) => (
   <View style={styles.item}>
     <View style={styles.hotbar}>
-      <FastImage source={require('@/assets/images/\BeFed.png')} style={styles.reactLogo} />
+      <Image source={require('@/assets/images/\BeFed.png')} style={styles.reactLogo} />
       <Text style={styles.title}>{title}</Text>
     </View>
 
-    <FastImage source={require('@/assets/images/\BeFed.png')} style={styles.smallimage} />
+    <Image source={require('@/assets/images/\BeFed.png')} style={styles.smallimage} />
   </View>
 );
 
@@ -51,11 +51,11 @@ export default function HomeScreen() {
   return (
   <SafeAreaProvider>
     <SafeAreaView style={styles.container}>
-      <FlatList
+      {/* <FlatList
         data={data}
         renderItem={({item}) => <Item title={item.title} />}
         keyExtractor={item => item.id}
-      />
+      /> */}
     </SafeAreaView>
   </SafeAreaProvider>
   );
