@@ -13,16 +13,19 @@ import {
 
 interface Post {
   id: number;
+  userID: number;
   back_image: string;
   front_image: string;
   ingredients: string;
   calories: number;
   health_score: number;
   upvotes: number;
+  username: string;
 }
 
 export default function CommunityFeedGrid() {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -31,11 +34,19 @@ export default function CommunityFeedGrid() {
     try {
       const response = await fetch(`${BackendUrl}/feed/community/upvotes`);
       const json = await response.json();
+      console.log(json.posts)
       return json.posts || [];
     } catch (error) {
       console.error('Error fetching posts', error);
       return [];
     }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    const refreshedPosts = await fetchPosts();
+    setPosts(refreshedPosts);
+    setRefreshing(false);
   };
 
   useEffect(() => {
@@ -51,6 +62,10 @@ export default function CommunityFeedGrid() {
     const frontImageUri = `data:image/jpeg;base64,${item.front_image}`;
 
     return (
+      <View>
+        <View style={styles.hotbar}>
+          <Text></Text>
+          </View>
       <Pressable
         style={styles.itemContainer}
         onPress={() => {
@@ -61,6 +76,7 @@ export default function CommunityFeedGrid() {
         <Image source={{ uri: backImageUri }} style={styles.backImage} resizeMode="cover" />
         <Image source={{ uri: frontImageUri }} style={styles.frontImage} resizeMode="contain" />
       </Pressable>
+      </View>
     );
   };
 
@@ -71,6 +87,8 @@ export default function CommunityFeedGrid() {
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderPostItem}
         numColumns={1} // Single column layout
+        refreshing={refreshing}
+        onRefresh={handleRefresh}
         ListFooterComponent={loadingMore ? <ActivityIndicator size="large" color="#000" /> : null}
       />
       {selectedPost && (
@@ -113,7 +131,7 @@ const styles = StyleSheet.create({
   },
   backImage: {
     width: '100%',
-    height: 200,
+    height: 300,
     borderRadius: 15,
   },
   frontImage: {
@@ -162,5 +180,8 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: '#fff',
     fontSize: 18,
+  },
+  hotbar:{
+    flex:1
   },
 });

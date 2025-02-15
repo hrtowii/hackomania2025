@@ -23,6 +23,7 @@ interface Post {
 
 export default function CommunityFeedGrid() {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -35,6 +36,12 @@ export default function CommunityFeedGrid() {
       console.error('Error fetching posts', error);
       return [];
     }
+  };
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    const refreshedPosts = await fetchPosts();
+    setPosts(refreshedPosts);
+    setRefreshing(false);
   };
 
   useEffect(() => {
@@ -81,7 +88,9 @@ export default function CommunityFeedGrid() {
         data={posts}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderPostItem}
-        numColumns={2} // Adjust number of columns as needed
+        numColumns={2}
+        refreshing={refreshing}
+        onRefresh={handleRefresh} // Adjust number of columns as needed
       // onEndReached={loadMorePosts}
       // onEndReachedThreshold={0.5}
       // ListFooterComponent={loadingMore ? <ActivityIndicator size="large" color="#000" /> : null}
