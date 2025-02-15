@@ -2,7 +2,7 @@ import sqlite3
 from flask import Flask, jsonify, request, make_response
 from flask_login import LoginManager
 import openai
-from dbcmds import save_post
+from dbcmds import save_post, update_score
 from aicmds import analyze_image_with_openai
 import json
 import base64
@@ -168,13 +168,21 @@ def upload():
         return make_response(jsonify(error="User ID must be an integer"), 400)
 
     res = analyze_image_with_openai(back_image)
+    # res = {"calories":900,"health_score":3,"food_name":"Fried Chicken and Fries","ingredients":"Chicken, batter, oil, fries","chal1":False,"chal2":False,"chal3":True,"chal4":True,"total_chals":2}
     cals = res["calories"]
     hs = res["health_score"]
     ingredients = res['ingredients'].split(', ')
-
-    print(res, cals, vis, user_id, curr_dt, hs, ingredients)
+    
+    chal1 = res["chal1"]
+    chal2 = res["chal2"]
+    chal3 = res["chal3"]
+    chal4 = res["chal4"]
+    total = res["total_chals"]
 
     save_post(userId=user_id, front_image=front_image, back_image=back_image, ingredients=json.dumps(ingredients), calories=cals, health_score=hs, visibility=vis, timestamp=curr_dt, upvotes=0)
+    
+    update_score(Id=user_id, chal1=chal1, chal2=chal2, chal3=chal3, chal4=chal4, total=total)
+    
     return make_response(jsonify(status=200))
 
 @app.route("/feed/<user_id>/friends/<sort_method>")
