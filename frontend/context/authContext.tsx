@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (userId: string) => {
     try {
-      await AsyncStorage.setItem(USER_ID_KEY, userId);
+      await AsyncStorage.setItem(USER_ID_KEY, userId.toString());
       setUserId(userId);
       router.replace('/(tabs)');
     } catch (error) {
