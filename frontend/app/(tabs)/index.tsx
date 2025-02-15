@@ -16,7 +16,6 @@ export default function HomeScreen() {
           source={require('@/assets/images/\BeFed.png')}
           style={styles.reactLogo}
       
-          
         
           
         />
