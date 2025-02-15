@@ -238,8 +238,6 @@ def community_feed(sort_method):
 
     return make_response(jsonify(posts=posts,status=200))
 
-
-
 @app.route("/feed/healthy/<sort_method>")
 def healthy_feed(sort_method):
 
@@ -262,6 +260,26 @@ def healthy_feed(sort_method):
 
     return make_response(jsonify(posts=posts,status=200))
 
+@app.route("/posts/upvote/<post_id>")
+def upvote_post(post_id):
+    try:
+        with sqlite3.connect('database.db') as con:
+                cur = con.cursor()
+                cur.execute(f"UPDATE Posts SET upvotes=upvotes+1 WHERE id={post_id}")
+                con.commit()
+
+        with sqlite3.connect('database.db') as con:
+            con.row_factory = sqlite3.Row
+            cur = con.cursor()
+            cur.execute(
+                f"SELECT upvotes FROM Posts WHERE id={post_id}")
+            rows = cur.fetchall()
+
+        count = rows[0]['upvotes']
+
+        return make_response(jsonify(count=count, status=200))
+    except:
+        return make_response(jsonify(error="Post with specified ID doesn't exist!"), 400)
 
 if __name__ == "__main__":
     app.run(port=8080)
