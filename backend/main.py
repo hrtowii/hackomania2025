@@ -2,7 +2,7 @@ import json
 import sqlite3
 from flask import Flask, jsonify, request
 from flask_login import LoginManager
-
+import OpenAI
 from dbcmds import save_post
 
 import base64
