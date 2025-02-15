@@ -49,7 +49,7 @@ def signup():
                         (email, password, username))
         con.commit()
 
-        return 200
+    return 200
 
 
 @app.route("/auth/login", methods=["POST"])
@@ -152,8 +152,7 @@ def add_friend(user_id, friend_id):
                         (json.dumps(friends_friendlist_parsed), friend_id))
         con.commit()
 
-    pass
-
+    return 200
 
 
 @app.route("/posts", methods=["GET", "POST"])
