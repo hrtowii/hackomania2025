@@ -6,6 +6,7 @@ import * as FileSystem from 'expo-file-system'; // Import expo-file-system
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import React from 'react';
+import { BackendUrl } from '@/context/backendUrl';
 
 interface PictureData {
     uri: string;
@@ -58,7 +59,7 @@ export default function CameraScreen() {
                 };
 
                 // POST the payload to the backend
-                const response = await fetch('http://your-backend-url/posts/upload', {
+                const response = await fetch(`${BackendUrl}/posts/upload`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

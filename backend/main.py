@@ -1,5 +1,5 @@
 import sqlite3
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, make_response
 from flask_login import LoginManager
 import openai
 from dbcmds import save_post
@@ -35,7 +35,7 @@ def signup():
         rows = cur.fetchall()
 
     if rows:
-        return jsonify(error="Email already exists"), 400
+        return make_response(jsonify(error="Email already exists"), 400)
 
     try:
         with sqlite3.connect('database.db') as con:
@@ -44,9 +44,9 @@ def signup():
                         (email, password, username))
             con.commit()
     except sqlite3.IntegrityError:
-        return jsonify(error="Database error"), 500
+        return make_response(jsonify(error="Database error"), 500)
 
-    return jsonify(success=True)
+    return make_response(jsonify(success=True))
 
 @app.route("/auth/login", methods=["POST"])
 def login():
@@ -63,14 +63,14 @@ def login():
         rows = cur.fetchall()
 
     if not rows:
-        return jsonify(error="Account doesn't exist"), 404
+        return make_response(jsonify(error="Account doesn't exist"), 404)
 
     db_password = rows[0]['password']
     user_id = rows[0]['id']
     if db_password == password:
-        return jsonify(id=user_id)
+        return make_response(jsonify(id=user_id))
     else:
-        return jsonify(error="Wrong password"), 401
+        return make_response(jsonify(error="Wrong password"), 401)
 
 @app.route("/users/<user_id>/", methods=["GET"])
 def get_user(user_id):
@@ -82,7 +82,7 @@ def get_user(user_id):
         rows = cur.fetchall()
 
     if not rows:
-        return jsonify(error="User doesn't exist"), 404
+        return make_response(jsonify(error="User doesn't exist"), 404)
 
     health_score = rows[0]['health_score_avg']
     challenge_progress = rows[0]['challenge_progress']
@@ -94,7 +94,7 @@ def get_user(user_id):
             "SELECT id FROM Posts WHERE userId = (?)", (user_id,))
         posts = cur.fetchall()
 
-    return jsonify(posts=posts, health_score=health_score, challenge_progress=challenge_progress)
+    return make_response(jsonify(posts=posts, health_score=health_score, challenge_progress=challenge_progress))
 
 @app.route("/users/<user_id>/friends/add/<friend_id>/", methods=["GET"])
 def add_friend(user_id, friend_id):
@@ -105,7 +105,7 @@ def add_friend(user_id, friend_id):
         friend_rows = cur.fetchall()
 
     if not friend_rows:
-        return jsonify(error="Friend user doesn't exist"), 404
+        return make_response(jsonify(error="Friend user doesn't exist"), 404)
 
     friends_friendlist = json.loads(friend_rows[0]['friends'])
 
@@ -116,7 +116,7 @@ def add_friend(user_id, friend_id):
         user_rows = cur.fetchall()
 
     if not user_rows:
-        return jsonify(error="User doesn't exist"), 404
+        return make_response(jsonify(error="User doesn't exist"), 404)
 
     user_friendlist = json.loads(user_rows[0]['friends'])
 
@@ -133,41 +133,40 @@ def add_friend(user_id, friend_id):
                     (json.dumps(friends_friendlist), friend_id))
         con.commit()
 
-    return jsonify(success=True)
+    return make_response(jsonify(success=True))
 
 @app.route("/posts/upload", methods=["POST"])
 def upload():
     data = request.get_json()
 
     if not data or 'image_base64' not in data:
-        return jsonify(error="No image found"), 400
+        return make_response(jsonify(error="No image found"), 400)
 
     image_b64 = data['image_base64']
     vis = data.get('visibility', 'public')
     user_id = data.get('userID')
 
     if not user_id:
-        return jsonify(error="No user ID provided", status=400)
+        return make_response(jsonify(error="No user ID provided"), 400)
     elif isinstance(user_id, int) == False:
-        return jsonify(error="User ID is not int", status=400)
+        return make_response(jsonify(error="User ID is not int"), 400)
 
     if (vis != "public") and (vis != "friends"):
-        return jsonify(error="Invalid visibility type")
-        return jsonify(error="No user ID provided"), 400
+        return make_response(jsonify(error="No user ID provided"), 400)
     try:
         user_id = int(user_id)
     except ValueError:
-        return jsonify(error="User ID must be an integer"), 400
+        return make_response(jsonify(error="User ID must be an integer"), 400)
 
     if vis not in ("public", "friends"):
-        return jsonify(error="Invalid visibility type"), 400
+        return make_response(jsonify(error="Invalid visibility type"), 400)
 
     try:
         img = decode_img(image_b64)
     except ValueError as e:
-        return jsonify(error=str(e)), 400
+        return make_response(jsonify(error=str(e)), 400)
 
-    return jsonify(status=200)
+    return make_response(jsonify(status=200))
 
 if __name__ == "__main__":
     app.run(port=8080)

@@ -48,7 +48,7 @@ export default function RegisterScreen() {
       if (response.ok) {
         // Automatically log the user in after successful registration
         login(data.id);
-        router.replace('/(tabs)');
+        // router.replace('/(tabs)');
       } else {
         Alert.alert('Error', data.error || 'Registration failed. Please try again.');
       }
