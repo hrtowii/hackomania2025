@@ -80,7 +80,7 @@ def get_user(user_id):
         con.row_factory = sqlite3.Row
         cur = con.cursor()
         cur.execute(
-            "SELECT health_score_avg, challenge_progress FROM Users WHERE id = (?)", (user_id,))
+            "SELECT health_score_avg, challenge_progress, username FROM Users WHERE id = (?)", (user_id,))
         rows = cur.fetchall()
 
     print(rows)
@@ -88,6 +88,7 @@ def get_user(user_id):
     try:
         health_score = rows[0]['health_score_avg']
         challenge_progress = rows[0]['challenge_progress']
+        username = rows[0]['username']
     except:
         return make_response(jsonify(error="User doesn't exist"), 404)
 
@@ -102,7 +103,7 @@ def get_user(user_id):
     for i in posts:
         all_posts.append(i['id'])
 
-    return make_response(jsonify(posts=all_posts, health_score=health_score, challenge_progress=challenge_progress))
+    return make_response(jsonify(username=username, posts=all_posts, health_score=health_score, challenge_progress=challenge_progress))
 
 @app.route("/users/<user_id>/friends/add/<friend_id>/", methods=["GET"])
 def add_friend(user_id, friend_id):

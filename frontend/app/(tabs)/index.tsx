@@ -1,18 +1,20 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { View, FlatList, RefreshControl, ScrollView, Image, Text, Pressable, StyleSheet, Modal } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { BackendUrl } from '@/context/backendUrl'; 
 import { FontAwesome6 } from '@expo/vector-icons';
+import { useAuth } from '@/context/authContext';
 
 interface Post {
   id: number;
-  userID: number;
+  userId: number;
   back_image: string;
   front_image: string;
   ingredients: string;
   calories: number;
   health_score: number;
   upvotes: number;
+  username?: string;
 } 
 
 export default function CombinedScreen() {
@@ -21,6 +23,7 @@ export default function CombinedScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [userIds, setUserIds] = useState(null)
   const fetchPosts = async () => {
     try {
       const response = await fetch(`${BackendUrl}/feed/community/upvotes`);
@@ -37,6 +40,18 @@ export default function CombinedScreen() {
     }, [])
   ); 
 
+  useEffect(() => {
+    for (let i = 0; i<posts.length;i++){
+      const userId = posts[i].userId;
+      try {
+        const response = fetch(`${BackendUrl}/users/${userId}/`).then(userResponse => {
+          console.log(userResponse.json())
+        })
+      } catch (e) {
+        console.log(e)
+      }
+    }
+}, [posts])
   const handleRefresh = async () => {
     setRefreshing(true);
     await fetchPosts();
