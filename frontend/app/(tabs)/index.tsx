@@ -9,10 +9,16 @@ export default function HomeScreen() {
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+     
+      parallaxHeaderHeight = {400}
       headerImage={
         <Image
-          source={require('@/assets/images/partial-react-logo.png')}
+          source={require('@/assets/images/\BeFed.png')}
           style={styles.reactLogo}
+      
+          
+        
+          
         />
       }>
       <ThemedView style={styles.titleContainer}>
