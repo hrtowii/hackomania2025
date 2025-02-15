@@ -51,13 +51,6 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="leaderboard"
-        options={{
-          title: 'Leaderboard',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="medal.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
         name="camera"
         options={{
           title: 'Take Photo',
@@ -65,13 +58,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="grid"
+        name="leaderboard"
         options={{
-          title: 'View Posts',
+          title: 'Leaderboard',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="medal.fill" color={color} />,
         }}
       />
-  
+
     </Tabs>
     
   );

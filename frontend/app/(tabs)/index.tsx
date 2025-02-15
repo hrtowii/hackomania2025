@@ -15,11 +15,12 @@ interface Post {
   upvotes: number;
 } 
 
+
+
 export default function CombinedScreen() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [viewMode, setViewMode] = useState<'home' | 'grid'>('home');
-  const [refreshing, setRefreshing] = useState(false); 
-
+  const [refreshing, setRefreshing] = useState(false);
   const fetchPosts = async () => {
     try {
       const response = await fetch(`${BackendUrl}/feed/community/upvotes`);
@@ -37,11 +38,12 @@ export default function CombinedScreen() {
     }, [])
   ); 
 
-  // Pull-to-refresh functionality
-  const onRefresh = useCallback(() => {
+  const handleRefresh = async () => {
     setRefreshing(true);
-    fetchPosts().finally(() => setRefreshing(false));
-  }, []); 
+    const refreshedPosts = await fetchPosts();
+    setPosts(refreshedPosts);
+    setRefreshing(false);
+  };
 
   // Render a grid item for grid view.
   const renderGridItem = ({ item }: { item: Post }) => {
@@ -55,18 +57,13 @@ export default function CombinedScreen() {
     );
   }; 
 
-  // Render the home view for list view.
   const renderHomeView = () => (
-    <ScrollView 
-      refreshControl={
-        <RefreshControl 
-          refreshing={refreshing} 
-          onRefresh={onRefresh} 
-        />
-      }
-    >
-      {posts.map((post) => (
-        <View key={post.id} style={styles.homeItem}>
+    <FlatList
+      numColumns={1}
+      data={posts}
+      keyExtractor={(item) => item.id.toString()}
+      renderItem={({ item: post }) => (
+        <View style={styles.homeItem}>
           <Text style={styles.titleText}>Post #{post.id}</Text>
           <Image
             source={{ uri: `data:image/jpeg;base64,${post.back_image}` }}
@@ -76,8 +73,10 @@ export default function CombinedScreen() {
           <Text>Calories: {post.calories}</Text>
           <Text>Upvotes: {post.upvotes}</Text>
         </View>
-      ))}
-    </ScrollView>
+      )}
+      refreshing={refreshing}
+      onRefresh={handleRefresh}
+    />
   ); 
 
   return (
@@ -88,12 +87,8 @@ export default function CombinedScreen() {
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderGridItem}
           numColumns={2}
-          refreshControl={
-            <RefreshControl 
-              refreshing={refreshing} 
-              onRefresh={onRefresh} 
-            />
-          }
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
           contentContainerStyle={styles.gridContainer}
         />
       ) : (
