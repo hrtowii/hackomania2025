@@ -59,3 +59,5 @@ INSERT INTO Challenges (title, description) VALUES
 ('Power Up with Protein 🍳', 'Keep your plate packed with muscle-friendly goodness!'),
 ('Try No-Fry 🚫🍟', 'Ditch the fryer for a meal that treats your body better.'),
 ('Fuel-Up Faceoff 👑🍴', 'Earn points for every healthy choice! The top scorer proves they’ve got the best food game.');
+
+CREATE INDEX IF NOT EXISTS idx_upvotes ON Posts (upvotes);

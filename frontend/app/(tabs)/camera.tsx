@@ -21,8 +21,16 @@ export default function CameraScreen() {
     const navigation = useNavigation();
     const { userId } = useAuth();
     const cameraRef = useRef<CameraView>(null);
+    const [height, setHeight] = useState(0);
     const { width } = useWindowDimensions();
-    const height = Math.round((width * 16) / 9);
+
+    useEffect(() => {
+        const calculateHeight = () => {
+            const newHeight = Math.round((width * 16) / 9);
+            setHeight(newHeight);
+        };
+        calculateHeight(); // Initial calculation
+    }, [width]);
 
     useEffect(() => {
         (async () => {
@@ -88,8 +96,9 @@ export default function CameraScreen() {
         <View style={styles.container}>
             <CameraView 
                 ref={cameraRef}
-                style={[styles.camera, { height }]}
+                style={[styles.camera, { height: 393 }]}
                 facing={facing}
+                // resizeMode="cover" // Add resizeMode to handle different screen sizes
             >
                 {pictures[facing === 'front' ? 'back' : 'front'] && (
                     <Image
@@ -137,6 +146,7 @@ const styles = StyleSheet.create({
         width: '100%',
         flex: 4,
         borderRadius: 20,
+        backgroundColor: 'black',
     },
     controls: {
         flex: 1,

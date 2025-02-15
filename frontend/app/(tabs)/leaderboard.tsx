@@ -5,6 +5,7 @@ import Leaderboard from 'react-native-leaderboard';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import MaskedView from '@react-native-masked-view/masked-view';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function LeaderboardComponent() {
     const [leaderboardData, setLeaderboardData] = useState([]);
@@ -84,6 +85,7 @@ export default function LeaderboardComponent() {
     }
 
     return (
+        <SafeAreaView style={styles.container}>
         <View style={styles.container}>
             {renderHeader()}
             <Leaderboard
@@ -94,6 +96,7 @@ export default function LeaderboardComponent() {
                 style={styles.leaderboard}
             />
         </View>
+        </SafeAreaView>
     );
 }
 
