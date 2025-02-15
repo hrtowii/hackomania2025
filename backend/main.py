@@ -3,15 +3,16 @@ from flask import Flask, jsonify, request, make_response
 from flask_login import LoginManager
 import openai
 from dbcmds import save_post
+from aicmds import analyze_image_with_openai
 import json
 import base64
+from dotenv import load_dotenv
+import os
 
-def decode_img(img_b64):
-    try:
-        img = base64.b64decode(img_b64)
-        return img
-    except Exception as e:
-        raise ValueError("Invalid Base64 Image")
+load_dotenv()
+
+openai.api_key = os.getenv("OPENAI_API_KEY")
+client = openai.OpenAI(api_key=openai.api_key)
 
 app = Flask(__name__)
 app.secret_key = "definitely not plaintext"
