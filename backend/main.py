@@ -183,25 +183,33 @@ def upload():
     data = request.get_json()
 
     if not data or 'image_base64' not in data:
-        return jsonify(error="No image found"), 400
+        return jsonify(error="No image found", status=400)
 
     image_b64 = data['image_base64']
     vis = data['visibility']# DEFAULTS TO comm
     user_id = data['userID'] # Validation below
 
     if not user_id:
-        return jsonify(error="No user ID provided"), 400
+        return jsonify(error="No user ID provided", status=400)
+    elif isinstance(user_id, int) == False:
+        return jsonify(error="User ID is not int", status=400)
+    
+    if (vis != "public") and (vis != "friends"):
+        return jsonify(error="Invalid visibility type")
 
     try:
         img = decode_img(image_b64)
+        print(img)
 
     except ValueError as e:
-        return jsonify(error=str(e)), 400
+        return jsonify(error=str(e), status=400)
 
 
-    # ins api stuff here 😥😥😥😥😥😥
+    
 
-    # save_post(user_id, img, )
+    
+    
+    return jsonify(status=200)
 
 
 @app.route("/posts/<post_id>/", methods=["GET"])
