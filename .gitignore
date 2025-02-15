@@ -4,3 +4,4 @@ venv/
 .env
 backend/database.db
 backend/database.db
+backend/database.db
