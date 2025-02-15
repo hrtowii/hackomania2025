@@ -1,0 +1,37 @@
+CREATE TABLE Users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT,
+    username TEXT,
+    password TEXT,
+    friends TEXT, -- array of friend IDs
+    health_score_avg REAL,
+    challenge_progress INT
+);
+
+CREATE TABLE Posts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    userId INTEGER,
+    image_base64 TEXT, -- encode image into base64 string, store here.
+    ingredients TEXT, --  array of ingredients
+    calories INTEGER,
+    health_score REAL,
+    visibility TEXT, -- 'public' OR 'friends'
+    timestamp DATETIME,
+    upvotes INTEGER
+);
+
+CREATE TABLE Votes (
+    postId INTEGER,
+    userId INTEGER,
+    upvotes INTEGER
+);
+
+CREATE TABLE Challenges (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT,
+    goal TEXT,
+    start_date DATE,
+    end_date DATE
+);
+
+insert into Users (email, username, password) values ('test@email.com', 'ze2', 'password');
