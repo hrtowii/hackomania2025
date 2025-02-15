@@ -14,7 +14,7 @@ export default function TabLayout() {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true); // Mark the component as mounted
+    setIsMounted(true);
   }, []);
 
   useEffect(() => {
@@ -53,8 +53,22 @@ export default function TabLayout() {
       <Tabs.Screen
         name="leaderboard"
         options={{
-          title: 'leaderboard',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Leaderboard',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="medal.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="camera"
+        options={{
+          title: 'Take Photo',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="camera.aperture" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="grid"
+        options={{
+          title: 'View Posts',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="medal.fill" color={color} />,
         }}
       />
   

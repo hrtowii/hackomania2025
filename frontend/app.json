@@ -38,6 +38,15 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "2a12f33c-cb98-4d80-831f-fd00481a2175"
+      }
+    },
+    "owner": "htrowii"
   }
 }
