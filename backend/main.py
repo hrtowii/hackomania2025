@@ -139,37 +139,39 @@ def add_friend(user_id, friend_id):
 
     return make_response(jsonify(success=True))
 
+
 @app.route("/posts/upload", methods=["POST"])
 def upload():
     data = request.get_json()
 
-    if not data or 'image_base64' not in data:
-        return make_response(jsonify(error="No image found"), 400)
-
-    image_b64 = data['image_base64']
-    vis = data.get('visibility', 'public')
-    user_id = data.get('userID')
+    if not data or 'front_image' not in data or 'back_image' not in data:
+        return jsonify(error="No image found", status=400)
+        
+    front_image = data['front_image']
+    back_image = data['back_image']
+    vis = data['visibility']
+    user_id = data['userID'] 
+    curr_dt = datetime.datetime.now()
 
     if not user_id:
         return make_response(jsonify(error="No user ID provided"), 400)
     elif isinstance(user_id, int) == False:
         return make_response(jsonify(error="User ID is not int"), 400)
-
     if (vis != "public") and (vis != "friends"):
         return make_response(jsonify(error="No user ID provided"), 400)
     try:
         user_id = int(user_id)
     except ValueError:
         return make_response(jsonify(error="User ID must be an integer"), 400)
-
-    if vis not in ("public", "friends"):
-        return make_response(jsonify(error="Invalid visibility type"), 400)
-
-    try:
-        img = decode_img(image_b64)
-    except ValueError as e:
-        return make_response(jsonify(error=str(e)), 400)
-
+    
+    res = analyze_image_with_openai(back_image)
+    cals = res["calories"]
+    hs = res["health_score"]
+    ingredients = res['ingredients'].split(', ')
+    
+    print(res, cals, vis, user_id, curr_dt, hs, ingredients)
+    
+    save_post(userId=user_id, front_image=front_image, back_image=back_image, ingredients=json.dumps(ingredients), calories=cals, health_score=hs, visibility=vis, timestamp=curr_dt, upvotes=0)
     return make_response(jsonify(status=200))
 
 @app.route("/feed/<user_id>/friends/<sort_method>")
