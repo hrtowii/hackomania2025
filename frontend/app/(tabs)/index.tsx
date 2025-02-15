@@ -120,7 +120,9 @@ const styles = StyleSheet.create({
   },
   backImage: {
     width: '100%',
-    height: '100%',
+    aspectRatio: "4 / 3",
+    // height: ,
+    borderRadius: 15,
   },
   frontImage: {
     position: 'absolute',
