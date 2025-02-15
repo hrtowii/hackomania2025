@@ -7,6 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import React from 'react';
 import { BackendUrl } from '@/context/backendUrl';
+import { useAuth } from '@/context/authContext';
 
 interface PictureData {
     uri: string;
@@ -17,6 +18,7 @@ export default function CameraScreen() {
     const [pictures, setPictures] = useState<{ front: PictureData | null, back: PictureData | null }>({ front: null, back: null });
     const [permission, requestPermission] = useCameraPermissions();
     const navigation = useNavigation();
+    const { userId } = useAuth();
     const cameraRef = useRef<CameraView>(null);
     const { width } = useWindowDimensions();
     const height = Math.round((width * 16) / 9);
@@ -52,10 +54,10 @@ export default function CameraScreen() {
                 const backBase64 = await FileSystem.readAsStringAsync(pictures.back.uri, { encoding: FileSystem.EncodingType.Base64 });
 
                 const payload = {
-                    front_image: frontBase64,
-                    back_image: backBase64,
-                    userID: "your_user_id",     // Replace with your actual user id logic
-                    visibility: "public"         // Or modify as needed
+                    image_base64: frontBase64,
+                    // back_image: backBase64,
+                    userID: parseInt(userId!),
+                    visibility: "public"
                 };
 
                 // POST the payload to the backend
