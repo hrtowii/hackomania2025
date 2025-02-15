@@ -41,17 +41,32 @@ export default function CombinedScreen() {
   ); 
 
   useEffect(() => {
-    for (let i = 0; i<posts.length;i++){
-      const userId = posts[i].userId;
+    const fetchUsernames = async () => {
+      if (posts.length === 0) return;
+  
       try {
-        const response = fetch(`${BackendUrl}/users/${userId}/`).then(userResponse => {
-          console.log(userResponse.json())
-        })
+        const updatedPosts = await Promise.all(
+          posts.map(async (post) => {
+            try {
+              const response = await fetch(`${BackendUrl}/users/${post.userId}/`);
+              const userData = await response.json();
+              return { ...post, username: userData.username };
+            } catch (error) {
+              console.error(`Error fetching username for userId ${post.userId}:`, error);
+              return post; // Return post unchanged if fetch fails
+            }
+          })
+        );
+  
+        setPosts(updatedPosts);
       } catch (e) {
-        console.log(e)
+        console.error("Error in fetching usernames:", e);
       }
-    }
-}, [posts])
+    };
+  
+    fetchUsernames();
+  }, [posts]); // Runs whenever `posts` updates
+  
   const handleRefresh = async () => {
     setRefreshing(true);
     await fetchPosts();
@@ -75,22 +90,22 @@ export default function CombinedScreen() {
       keyExtractor={(item) => item.id.toString()}
       renderItem={({ item: post }) => (
         <Pressable onPress={() => openModal(post)}>
-        <View style={styles.homeItem}>
-          <Text style={styles.titleText}>Post #{post.id}</Text>
-          <Image
-            source={{ uri: `data:image/jpeg;base64,${post.back_image}` }}
-            style={styles.homeImage}
-            resizeMode="cover"
-          />
-          <Text>Calories: {post.calories}</Text>
-          <Text>Upvotes: {post.upvotes}</Text>
-        </View>
-      </Pressable>
+          <View style={styles.homeItem}>
+            <Text style={styles.titleText}>{post.username ? post.username : `User ${post.userId}`}</Text>
+            <Image
+              source={{ uri: `data:image/jpeg;base64,${post.back_image}` }}
+              style={styles.homeImage}
+              resizeMode="cover"
+            />
+            <Text>Calories: {post.calories}</Text>
+            <Text>Upvotes: {post.upvotes}</Text>
+          </View>
+        </Pressable>
       )}
       refreshing={refreshing}
       onRefresh={handleRefresh}
     />
-  ); 
+  );  
 
   return (
     <View style={{ flex: 1 }}>
