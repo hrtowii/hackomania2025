@@ -1,6 +1,7 @@
 import { BackendUrl } from '@/context/backendUrl';
 import React, { useEffect, useState } from 'react';
-import { View, ActivityIndicator, Text, StyleSheet, Image } from 'react-native';
+import { View, ActivityIndicator, Text, StyleSheet, Image, TextInput } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import Leaderboard from 'react-native-leaderboard';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -10,11 +11,20 @@ export default function LeaderboardComponent() {
     const [leaderboardData, setLeaderboardData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [leaderboardType, setLeaderboardType] = useState('health');
+    const [numEntries, setNumEntries] = useState(10);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(`${BackendUrl}/leaderboard/health/10`);
+                let url;
+                if (leaderboardType === 'health') {
+                    url = `${BackendUrl}/leaderboard/health/${numEntries}`;
+                } else {
+                    url = `${BackendUrl}/challenge_leaderboard/${leaderboardType}/${numEntries}`;
+                }
+
+                const response = await fetch(url);
                 if (!response.ok) {
                     throw new Error('Failed to fetch data');
                 }
@@ -23,8 +33,7 @@ export default function LeaderboardComponent() {
                 const transformedData = result.users.map((user, index) => ({
                     rank: index + 1, // Add rank
                     userName: user.username,
-                    highScore: user.health_score_avg,
-                    avatar: `https://i.pravatar.cc/150?u=${user.username}`, // Example avatar URL
+                    highScore: leaderboardType === 'health' ? user.health_score_avg : user.points,
                 }));
 
                 setLeaderboardData(transformedData);
@@ -36,7 +45,7 @@ export default function LeaderboardComponent() {
         };
 
         fetchData();
-    }, []);
+    }, [leaderboardType, numEntries]);
 
     const GradientText = ({ children }) => (
         <MaskedView maskElement={<Text style={styles.headerText}>{children}</Text>}>
@@ -86,6 +95,31 @@ export default function LeaderboardComponent() {
     return (
         <View style={styles.container}>
             {renderHeader()}
+
+            <View style={styles.controls}>
+                <Picker
+                    selectedValue={leaderboardType}
+                    style={styles.picker}
+                    onValueChange={(itemValue) => setLeaderboardType(itemValue)}
+                >
+                    <Picker.Item label="Health Leaderboard" value="health" />
+                    <Picker.Item label="Challenge 1 Leaderboard" value="1" />
+                    <Picker.Item label="Challenge 2 Leaderboard" value="2" />
+                    <Picker.Item label="Challenge 3 Leaderboard" value="3" />
+                    <Picker.Item label="Challenge 4 Leaderboard" value="4" />
+                    <Picker.Item label="Challenge 5 Leaderboard" value="5" />
+                    {/* Add more challenges as needed */}
+                </Picker>
+
+                <TextInput
+                    style={styles.input}
+                    keyboardType="numeric"
+                    value={String(numEntries)}
+                    onChangeText={(text) => setNumEntries(Number(text))}
+                    placeholder="Number of entries"
+                />
+            </View>
+
             <Leaderboard
                 data={leaderboardData}
                 sortBy='highScore'
@@ -108,9 +142,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     headerText: {
-        fontSize: 32, // Larger font size
+        fontSize: 32,
         fontWeight: 'bold',
-        color: '#000', // Black color for the text
+        color: '#000',
     },
     leaderboard: {
         marginTop: 20,
@@ -143,12 +177,12 @@ const styles = StyleSheet.create({
     },
     userName: {
         flex: 1,
-        fontSize: 18, // Larger font size
+        fontSize: 18,
         fontWeight: '600',
-        color: '#000', // Black color for the text
+        color: '#000',
     },
     score: {
-        fontSize: 18, // Larger font size
+        fontSize: 18,
         fontWeight: 'bold',
         color: '#2575fc',
     },
@@ -162,5 +196,22 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#ff4444',
         textAlign: 'center',
+    },
+    controls: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
+        marginTop: 10,
+    },
+    picker: {
+        flex: 1,
+        marginRight: 10,
+    },
+    input: {
+        flex: 1,
+        borderColor: '#ccc',
+        borderWidth: 1,
+        borderRadius: 5,
+        padding: 10,
     },
 });
