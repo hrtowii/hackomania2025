@@ -54,11 +54,12 @@ export default function CameraScreen() {
                 const backBase64 = await FileSystem.readAsStringAsync(pictures.back.uri, { encoding: FileSystem.EncodingType.Base64 });
 
                 const payload = {
-                    image_base64: frontBase64,
-                    // back_image: backBase64,
+                    front_image: frontBase64,
+                    back_image: backBase64,
                     userID: parseInt(userId!),
                     visibility: "public"
                 };
+                console.log(payload)
 
                 // POST the payload to the backend
                 const response = await fetch(`${BackendUrl}/posts/upload`, {
