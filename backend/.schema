@@ -3,9 +3,9 @@ CREATE TABLE Users (
     email TEXT,
     username TEXT,
     password TEXT,
-    friends TEXT, -- array of friend IDs
-    health_score_avg REAL,
-    challenge_progress INT
+    friends TEXT DEFAULT '[]', -- array of friend IDs
+    health_score_avg REAL DEFAULT 0,
+    challenge_progress INT DEFAULT 0
 );
 
 CREATE TABLE Posts (

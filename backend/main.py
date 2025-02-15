@@ -49,7 +49,7 @@ def signup():
                         (email, password, username))
         con.commit()
 
-    return 200
+    return jsonify(success=True)
 
 
 @app.route("/auth/login", methods=["POST"])
@@ -104,7 +104,7 @@ def get_user(user_id):
     return jsonify(posts=posts, health_score=health_score, challenge_progress=challenge_progress), 200
 
 
-@app.route("/users/<user_id>/friends/<friend_id>/", methods=["GET"])
+@app.route("/users/<user_id>/friends/add/<friend_id>/", methods=["GET"])
 def add_friend(user_id, friend_id):
 
     with sqlite3.connect('database.db') as con:
@@ -152,7 +152,7 @@ def add_friend(user_id, friend_id):
                         (json.dumps(friends_friendlist_parsed), friend_id))
         con.commit()
 
-    return 200
+    return jsonify(success=True)
 
 
 @app.route("/posts", methods=["GET", "POST"])
