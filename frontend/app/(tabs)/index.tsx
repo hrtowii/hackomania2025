@@ -4,6 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { BackendUrl } from '@/context/backendUrl';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { useAuth } from '@/context/authContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface Post {
   id: number;
@@ -115,11 +116,17 @@ export default function CombinedScreen() {
 
   // Render the list (home) view.
   const renderHomeView = () => (
+    <SafeAreaView>
     <FlatList
       key={viewMode}
       numColumns={1}
       data={posts}
       keyExtractor={(item) => item.id.toString()}
+      ListHeaderComponent={(
+        <View style={styles.header}>
+          <Image source={require('@/assets/images/BeFed.png')} style={styles.banner} />
+        </View>
+      )}
       renderItem={({ item: post }) => (
         <Pressable onPress={() => openModal(post)}>
             <View style={styles.homeItem}>
@@ -140,7 +147,7 @@ export default function CombinedScreen() {
       )}
       refreshing={refreshing}
       onRefresh={handleRefresh}
-    />
+    /></SafeAreaView>
   );
 
   const openModal = (post: Post) => {
@@ -221,6 +228,7 @@ export default function CombinedScreen() {
         </Modal>
       )}
     </View>
+
   );
 }
 
@@ -375,5 +383,18 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginLeft: 3,
     fontSize: 14,
+  },
+  header: {
+    width: '100%',
+    height: 150,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+
+  },
+  banner: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
 });
