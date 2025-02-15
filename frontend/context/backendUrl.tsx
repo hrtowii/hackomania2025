@@ -1,1 +1,1 @@
-export const BackendUrl = "https://macbook-air-2.tail92d5fd.ts.net/";
+export const BackendUrl = "https://ibarahimes-macbook-pro.tail50a59a.ts.net";

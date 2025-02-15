@@ -1,10 +1,8 @@
 import React, { useState, useCallback, useEffect} from 'react';
 import { View, FlatList, RefreshControl, ScrollView, Image, Text, Pressable, StyleSheet, Modal } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
 import { BackendUrl } from '@/context/backendUrl';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { useFonts, Rubik_400Regular, Rubik_900Black_Italic } from "@expo-google-fonts/rubik";
-import { useAuth } from '@/context/authContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface Post {
