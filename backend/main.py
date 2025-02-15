@@ -1,3 +1,4 @@
+import json
 import sqlite3
 from flask import Flask, jsonify, request
 from flask_login import LoginManager
@@ -97,16 +98,63 @@ def get_user(user_id):
         cur.execute(
             "SELECT id FROM Posts WHERE userId = (?)", (user_id,)) # sql query
         rows = cur.fetchall()
-        print(rows)
 
     posts = rows
 
     return jsonify(posts=posts, health_score=health_score, challenge_progress=challenge_progress, status=200)
 
 
-@app.route("/users/friends/<user_id>/", methods=["GET"])
-def add_friend(user_id):
-    pass
+@app.route("/users/<user_id>/friends/<friend_id>/", methods=["GET"])
+def add_friend(user_id, friend_id):
+
+    with sqlite3.connect('database.db') as con:
+        con.row_factory = sqlite3.Row
+        cur = con.cursor()
+        cur.execute(
+            "SELECT friends FROM Users WHERE id = (?)", (friend_id,))
+        rows = cur.fetchall()
+
+    try:
+        friends_friendlist = rows[0]['friends']
+    except:
+        return jsonify(error="user doesn't exist", status=400)
+
+    with sqlite3.connect('database.db') as con:
+        con.row_factory = sqlite3.Row
+        cur = con.cursor()
+        cur.execute(
+            "SELECT friends FROM Users WHERE id = (?)", (user_id,))
+        rows = cur.fetchall()
+
+    try:
+        user_friendlist = rows[0]['friends']
+    except:
+        return jsonify(error="user doesn't exist", status=400)
+
+    # i know this is terrible practice dont murder me but i cant be bothered to deal with the foreign key shit
+    # hopefully this doesnt bckfire :)
+
+    friends_friendlist_parsed = json.loads(friends_friendlist[0])
+    user_friendlist_parsed = json.loads(user_friendlist[0])
+
+    if user_id not in friends_friendlist:
+        friends_friendlist_parsed.append(user_id)
+
+    if friend_id not in user_friendlist:
+        user_friendlist_parsed.append(user_id)
+
+    with sqlite3.connect('database.db') as con:
+        con.row_factory = sqlite3.Row
+        cur = con.cursor()
+        cur.execute("UPDATE Users SET friends=(?) WHERE id=(?)",
+                        (json.dumps(user_friendlist_parsed), user_id))
+        cur.execute("UPDATE Users SET friends=(?) WHERE id=(?)",
+                        (json.dumps(friends_friendlist_parsed), friend_id))
+        con.commit()
+
+    posts = rows
+
+    
 
 @app.route("/posts", methods=["GET", "POST"])
 def posts():
