@@ -20,7 +20,6 @@ def update_score(Id, chal1, chal2, chal3, chal4, total):
          cur.execute("SELECT challenge_progress FROM Users WHERE id=?", (Id,))
          result = cur.fetchone()
          
-         
          if result:
             progress = json.loads(result[0])
            

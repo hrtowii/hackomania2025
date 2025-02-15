@@ -168,7 +168,6 @@ def upload():
         return make_response(jsonify(error="User ID must be an integer"), 400)
 
     res = analyze_image_with_openai(back_image)
-    # res = {"calories":900,"health_score":3,"food_name":"Fried Chicken and Fries","ingredients":"Chicken, batter, oil, fries","chal1":False,"chal2":False,"chal3":True,"chal4":True,"total_chals":2}
     cals = res["calories"]
     hs = res["health_score"]
     ingredients = res['ingredients'].split(', ')

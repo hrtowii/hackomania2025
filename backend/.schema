@@ -5,11 +5,7 @@ CREATE TABLE Users (
     password TEXT,
     friends TEXT DEFAULT '[]', -- array of friend IDs
     health_score_avg REAL DEFAULT 0,
-<<<<<<< Updated upstream
     challenge_progress TEXT DEFAULT '[0, 0, 0, 0, 0]' -- array w/ 5 elements [1, 2, 3, 4, 5]
-=======
-    challenge_progress TEXT DEFAULT '[0,0,0,0,0]'
->>>>>>> Stashed changes
 );
 
 CREATE TABLE Posts (
