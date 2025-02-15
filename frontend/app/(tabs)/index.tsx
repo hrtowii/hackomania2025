@@ -1,7 +1,8 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { View, Button, FlatList, RefreshControl, ScrollView, Image, Text, Pressable, StyleSheet } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, FlatList, RefreshControl, ScrollView, Image, Text, Pressable, StyleSheet } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { BackendUrl } from '@/context/backendUrl'; 
+import { FontAwesome6 } from '@expo/vector-icons';
 
 interface Post {
   id: number;
@@ -29,7 +30,7 @@ export default function CombinedScreen() {
     }
   }; 
 
-  // Refresh when the screen is focused (revisiting the page)
+  // Refresh when the screen is focused
   useFocusEffect(
     useCallback(() => {
       fetchPosts();
@@ -42,35 +43,31 @@ export default function CombinedScreen() {
     fetchPosts().finally(() => setRefreshing(false));
   }, []); 
 
-  // Render a grid item for grid view; adjust styles as needed.
+  // Render a grid item for grid view.
   const renderGridItem = ({ item }: { item: Post }) => {
-    // When using base64 images, prepend the proper prefix.
     const backImageUri = `data:image/jpeg;base64,${item.back_image}`;
     const frontImageUri = `data:image/jpeg;base64,${item.front_image}`;
     return (
       <Pressable style={styles.gridItem} onPress={() => { /* handle detailed view if required */ }}>
-              <Button
-        title={`Switch to ${viewMode === 'home' ? 'Grid' : 'Home'} View`}
-        onPress={() => setViewMode(viewMode === 'home' ? 'grid' : 'home')}
-      />
         <Image source={{ uri: backImageUri }} style={styles.backImage} resizeMode="cover" />
         <Image source={{ uri: frontImageUri }} style={styles.frontImage} resizeMode="contain" />
       </Pressable>
-      </View>
     );
   }; 
 
-  // Render the home view however you need; here’s an illustrative example.
+  // Render the home view for list view.
   const renderHomeView = () => (
-    <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
+    <ScrollView 
+      refreshControl={
+        <RefreshControl 
+          refreshing={refreshing} 
+          onRefresh={onRefresh} 
+        />
+      }
+    >
       {posts.map((post) => (
         <View key={post.id} style={styles.homeItem}>
           <Text style={styles.titleText}>Post #{post.id}</Text>
-          {/* Use one of the images as representation */}
-          <Button
-        title={`Switch to ${viewMode === 'home' ? 'Grid' : 'Home'} View`}
-        onPress={() => setViewMode(viewMode === 'home' ? 'grid' : 'home')}
-      />
           <Image
             source={{ uri: `data:image/jpeg;base64,${post.back_image}` }}
             style={styles.homeImage}
@@ -86,22 +83,33 @@ export default function CombinedScreen() {
   return (
     <View style={{ flex: 1 }}>
       {viewMode === 'grid' ? (
-        <>
         <FlatList
           data={posts}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderGridItem}
-          numColumns={2}      // or 1 if you want a single column grid
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          numColumns={2}
+          refreshControl={
+            <RefreshControl 
+              refreshing={refreshing} 
+              onRefresh={onRefresh} 
+            />
+          }
           contentContainerStyle={styles.gridContainer}
         />
-        </>
       ) : (
         renderHomeView()
       )}
+      {/* Floating swap button */}
+      <Pressable
+        style={styles.floatingButton}
+        onPress={() => setViewMode(viewMode === 'home' ? 'grid' : 'home')}
+      >
+        <Text style={{ color: '#fff', fontSize: 24 }}>{viewMode === 'home' ? '🔳' : '🔲'}</Text>
+      </Pressable>
     </View>
   );
 } 
+
 const styles = StyleSheet.create({
   gridContainer: {
     padding: 5,
@@ -146,4 +154,22 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginVertical: 10,
   },
-}); 
+  // Floating button styles
+  floatingButton: {
+    position: 'absolute',
+    bottom: 100,
+    right: 20,
+    backgroundColor: '#007AFF',
+    borderRadius: 30,
+    width: 60,
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    zIndex: 999, // Ensure the button is on top
+  },
+});
