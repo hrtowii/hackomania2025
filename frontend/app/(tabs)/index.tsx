@@ -29,13 +29,24 @@ export default function CombinedScreen() {
     try {
       const response = await fetch(`${BackendUrl}/feed/community/upvotes`);
       const json = await response.json();
-      setPosts(json.posts || []);
+      const postsWithUsernames = await Promise.all(
+        (json.posts || []).map(async (post: { userId: any; }) => {
+          try {
+            const userResponse = await fetch(`${BackendUrl}/users/${post.userId}/`);
+            const userData = await userResponse.json();
+            return { ...post, username: userData.username };
+          } catch (error) {
+            console.error(`Error fetching username for userId ${post.userId}:`, error);
+            return { ...post, username: `User ${post.userId}` }; // Fallback to user ID if username fetch fails
+          }
+        })
+      );
+      setPosts(postsWithUsernames);
     } catch (error) {
       console.error('Error fetching posts:', error);
     }
   };
 
-  // Use useEffect to periodically refresh the posts (every 30 seconds).
   useEffect(() => {
     const interval = setInterval(() => {
       fetchPosts();
@@ -48,33 +59,6 @@ export default function CombinedScreen() {
       fetchPosts();
     }, [])
   ); 
-
-  useEffect(() => {
-    const fetchUsernames = async () => {
-      if (posts.length === 0) return;
-  
-      try {
-        const updatedPosts = await Promise.all(
-          posts.map(async (post) => {
-            try {
-              const response = await fetch(`${BackendUrl}/users/${post.userId}/`);
-              const userData = await response.json();
-              return { ...post, username: userData.username };
-            } catch (error) {
-              console.error(`Error fetching username for userId ${post.userId}:`, error);
-              return post; // Return post unchanged if fetch fails
-            }
-          })
-        );
-  
-        setPosts(updatedPosts);
-      } catch (e) {
-        console.error("Error in fetching usernames:", e);
-      }
-    };
-  
-    fetchUsernames();
-  }, [posts]); // Runs whenever `posts` updates
   
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -116,38 +100,52 @@ export default function CombinedScreen() {
 
   // Render the list (home) view.
   const renderHomeView = () => (
-    <SafeAreaView>
-    <FlatList
-      key={viewMode}
-      numColumns={1}
-      data={posts}
-      keyExtractor={(item) => item.id.toString()}
-      ListHeaderComponent={(
-        <View style={styles.header}>
-          <Image source={require('@/assets/images/BeFed.png')} style={styles.banner} />
-        </View>
-      )}
-      renderItem={({ item: post }) => (
-        <Pressable onPress={() => openModal(post)}>
-            <View style={styles.homeItem}>
-              <Text style={styles.titleText}>{post.username ? post.username : `User ${post.userId}`}</Text>
-              <Image
-                source={{ uri: `data:image/jpeg;base64,${post.back_image}` }}
-                style={styles.homeImage}
-                resizeMode="cover"
-              />
-            <View style={styles.row}>
-              <Pressable onPress={() => handleUpvote(post.id)} style={styles.upvoteButton}>
-                <FontAwesome6 name="thumbs-up" size={20} color="#007AFF" />
-              </Pressable>
-              <Text>{post.upvotes}</Text>
-            </View>
-            </View>
-          </Pressable>
-      )}
-      refreshing={refreshing}
-      onRefresh={handleRefresh}
-    /></SafeAreaView>
+    <SafeAreaView style={{ flex: 1 }}>
+      <FlatList
+        key={viewMode}
+        numColumns={1}
+        data={posts}
+        keyExtractor={(item) => item.id.toString()}
+        ListHeaderComponent={(
+          <View style={styles.header}>
+            <Image source={require('@/assets/images/BeFed.png')} style={styles.banner} />
+          </View>
+        )}
+        renderItem={({ item: post }) => (
+          <Pressable onPress={() => openModal(post)}>
+  <View style={styles.homeItem}>
+    <Text style={styles.titleText}>
+      {post.username ? post.username : `User ${post.userId}`}
+    </Text>
+    <View style={styles.imageWrapper}>
+      <Image
+        source={{ uri: `data:image/jpeg;base64,${post.back_image}` }}
+        style={styles.homeImage}
+        resizeMode="cover"
+      />
+      {/* Front image overlay in the top left */}
+      <Image
+        source={{ uri: `data:image/jpeg;base64,${post.front_image}` }}
+        style={styles.frontImageHome}
+        resizeMode="contain"
+      />
+      {/* Upvote button overlay on top of the back image */}
+      <Pressable
+        style={styles.upvoteOverlayButton}
+        onPress={() => handleUpvote(post.id)}
+      >
+        <FontAwesome6 name="thumbs-up" size={16} color="#fff" />
+        <Text style={styles.upvoteCountText}>{post.upvotes}</Text>
+      </Pressable>
+    </View>
+  </View>
+</Pressable>
+        )}
+        refreshing={refreshing}
+        onRefresh={handleRefresh}
+        contentContainerStyle={{ paddingBottom: 100 }}
+      />
+    </SafeAreaView>
   );
 
   const openModal = (post: Post) => {
@@ -170,12 +168,14 @@ export default function CombinedScreen() {
                 <View style={styles.imageContainer}>
                   <Image source={{ uri: backImageUri }} style={styles.backImage} resizeMode="cover" />
                   <Image source={{ uri: frontImageUri }} style={styles.frontImage} resizeMode="contain" />
-                  <Pressable style={styles.gridUpvoteButton} onPress={() => handleUpvote(post.id)}>
-                    <FontAwesome6 name="thumbs-up" size={18} color="#fff" />
-                    <Text style={styles.gridUpvoteText}>{post.upvotes}</Text>
+                  <Pressable style={styles.upvoteOverlayButtonSmall} onPress={() => handleUpvote(post.id)}>
+                    <FontAwesome6 name="thumbs-up" size={14} color="#fff" />
+                    <Text style={styles.upvoteCountTextSmall}>{post.upvotes}</Text>
                   </Pressable>
                 </View>
-                <Text style={styles.itemText}>Post #{post.id}</Text>
+                <Text style={styles.titleText}>
+                {post.username ? post.username : `User ${post.userId}`}
+                </Text>
               </Pressable>
             );
           }}
@@ -257,13 +257,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
   },
-  upvoteButton: {
-    marginLeft: 10,
-    padding: 5,
-  },
   titleText: {
     fontSize: 18,
     fontWeight: 'bold',
+    marginRight: 15,
   },
   homeImage: {
     width: '100%',
@@ -369,21 +366,6 @@ const styles = StyleSheet.create({
     color: '#000',
     fontSize: 16,
   },
-  gridUpvoteButton: {
-    position: 'absolute',
-    bottom: 5,
-    right: 5,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    borderRadius: 15,
-    paddingHorizontal: 5,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  gridUpvoteText: {
-    color: '#fff',
-    marginLeft: 3,
-    fontSize: 14,
-  },
   header: {
     width: '100%',
     height: 150,
@@ -396,5 +378,48 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
+  },
+  imageWrapper: {
+    position: 'relative',
+  },
+  frontImageHome: {
+    position: 'absolute',
+    top: 15,
+    left: 5,
+    width: 75,
+    height: 75,
+    borderRadius: 50,
+    borderWidth: 1.5,
+    borderColor: '#fff',
+  },
+  upvoteOverlayButton: {
+    position: 'absolute',
+    bottom: 25,
+    right: 15,
+    backgroundColor: '#007AFF', // Solid round background color
+    borderRadius: 30,
+    padding: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  upvoteOverlayButtonSmall: {
+    position: 'absolute',
+    bottom: 5,
+    right: 5,
+    backgroundColor: '#007AFF', // Solid round background color
+    borderRadius: 30,
+    padding: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  upvoteCountTextSmall: {
+    color: '#fff',
+    fontSize: 15,
+    marginLeft: 2,
+  },
+  upvoteCountText: {
+    color: '#fff',
+    fontSize: 20,
+    marginLeft: 5,
   },
 });
