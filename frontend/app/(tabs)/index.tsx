@@ -1,11 +1,9 @@
-import { Image, StyleSheet, Platform, VirtualizedList, StatusBar, Text, View, Pressable} from 'react-native';
-import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { vw, vh, vmin, vmax } from 'react-native-expo-viewport-units';
-import {BackendUrl} from '@/context/backendUrl';
+import React from 'react';
+import { Image, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
+import { vw, vh } from 'react-native-expo-viewport-units'; // For viewport-based sizes
+import FastImage from 'react-native-fast-image';
+import { FlatList } from 'react-native-gesture-handler';
 
 type ItemData = {
   id: string;
@@ -13,7 +11,7 @@ type ItemData = {
 };
 
 const getItem = (_data: unknown, index: number): ItemData => ({
-  id: Math.random().toString(12).substring(0),
+  id: `item-${index}`,  // Use a more stable ID (item-${index} for example)
   title: `Item ${index + 1}`,
 });
 
@@ -39,29 +37,27 @@ type ItemProps = {
 const Item = ({title}: ItemProps) => (
   <View style={styles.item}>
     <View style={styles.hotbar}>
-      <Image source={require('@/assets/images/\BeFed.png')}style={styles.reactLogo}></Image>
+      <FastImage source={require('@/assets/images/\BeFed.png')} style={styles.reactLogo} />
       <Text style={styles.title}>{title}</Text>
     </View>
 
-    <Image source={require('@/assets/images/\BeFed.png')}
-    style={styles.smallimage}
-    >
-    </Image>
+    <FastImage source={require('@/assets/images/\BeFed.png')} style={styles.smallimage} />
   </View>
 );
 
 export default function HomeScreen() {
+  const data = new Array(50).fill(null).map((_, index) => getItem(null, index)); // Generate mock data for FlatList
+
   return (
-      <SafeAreaProvider>
-      <SafeAreaView style={styles.container} edges={['top']}>
-      <VirtualizedList
-        initialNumToRender={4}
+  <SafeAreaProvider>
+    <SafeAreaView style={styles.container}>
+      <FlatList
+        data={data}
         renderItem={({item}) => <Item title={item.title} />}
-        getItemCount={getItemCount}
-        getItem={getItem}
+        keyExtractor={item => item.id}
       />
-      </SafeAreaView>
-      </SafeAreaProvider>
+    </SafeAreaView>
+  </SafeAreaProvider>
   );
 }
 
@@ -72,17 +68,13 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   title: {
-    fontSize: 24,  // Font size for the title
-    fontWeight: 'bold',  // Makes the title bold
-    color: '#333',  // Text color (dark grey)
-    textAlign: 'left',  // Aligns the text to the left
-    marginBottom: 0,  // Space below the title
-    letterSpacing: 1,  // Adds space between letters for a stylized effect
-    fontFamily: 'Arial',  // Optional: you can customize the font family
-  },  
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+    textAlign: 'left',
+    marginBottom: 0,
+    letterSpacing: 1,
+    fontFamily: 'Arial',
   },
   smallimage: {
     height: '100%',
@@ -90,7 +82,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     objectFit: 'contain',
   },
-  container:{
+  container: {
     flex: 1,
     alignItems: 'center',
   },
@@ -111,16 +103,12 @@ const styles = StyleSheet.create({
     height: 50,
     width: 50,
     borderRadius: 25,
-    // bottom: 0,
-    // left: 0,
-    // position: 'absolute',
   },
-  hotbar:{
+  hotbar: {
     width: '100%',
-    // height: '20%',
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    gap: '12px'
-  }
+    gap: 12,
+  },
 });
