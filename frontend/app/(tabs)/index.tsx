@@ -1,63 +1,100 @@
-import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
-import { vw, vh } from 'react-native-expo-viewport-units'; // For viewport-based sizes
-import FastImage from 'react-native-fast-image';
-import { FlatList } from 'react-native-gesture-handler';
+import { BackendUrl } from '@/context/backendUrl';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  Image,
+  Pressable,
+  StyleSheet,
+  Modal,
+  ActivityIndicator
+} from 'react-native';
 
-type ItemData = {
-  id: string;
-  title: string;
-};
+interface Post {
+  id: number;
+  back_image: string;
+  front_image: string;
+  ingredients: string;
+  calories: number;
+  health_score: number;
+  upvotes: number;
+}
 
-const getItem = (_data: unknown, index: number): ItemData => ({
-  id: `item-${index}`,  // Use a more stable ID (item-${index} for example)
-  title: `Item ${index + 1}`,
-});
+export default function CommunityFeedGrid() {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
-const getItemCount = (_data: unknown) => 50;
+  const fetchPosts = async () => {
+    try {
+      const response = await fetch(`${BackendUrl}/feed/community/upvotes`);
+      const json = await response.json();
+      return json.posts || [];
+    } catch (error) {
+      console.error('Error fetching posts', error);
+      return [];
+    }
+  };
 
-type ItemProps = {
-  title: string;
-};
+  useEffect(() => {
+    async function loadInitialPosts() {
+      const initialPosts = await fetchPosts();
+      setPosts(initialPosts);
+    }
+    loadInitialPosts();
+  }, []);
 
-// const getImage = async () => {
-//   try {
-//     const response = await fetch(`${BackendUrl}/posts`, {
-//       method: 'GET',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({ email: email.value, password: password.value }),
-//     });
-//     const data = await response.json();
-//   } catch {
+  const renderPostItem = ({ item }: { item: Post }) => {
+    const backImageUri = `data:image/jpeg;base64,${item.back_image}`;
+    const frontImageUri = `data:image/jpeg;base64,${item.front_image}`;
 
-//   }
-// };
-
-const Item = ({title}: ItemProps) => (
-  <View style={styles.item}>
-    <View style={styles.hotbar}>
-      <FastImage source={require('@/assets/images/\BeFed.png')} style={styles.reactLogo} />
-      <Text style={styles.title}>{title}</Text>
-    </View>
-
-    <FastImage source={require('@/assets/images/\BeFed.png')} style={styles.smallimage} />
-  </View>
-);
-
-export default function HomeScreen() {
-  const data = new Array(50).fill(null).map((_, index) => getItem(null, index)); // Generate mock data for FlatList
+    return (
+      <Pressable
+        style={styles.itemContainer}
+        onPress={() => {
+          setSelectedPost(item);
+          setModalVisible(true);
+        }}
+      >
+        <Image source={{ uri: backImageUri }} style={styles.backImage} resizeMode="cover" />
+        <Image source={{ uri: frontImageUri }} style={styles.frontImage} resizeMode="contain" />
+      </Pressable>
+    );
+  };
 
   return (
-  <SafeAreaProvider>
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <FlatList
-        data={data}
-        renderItem={({item}) => <Item title={item.title} />}
-        keyExtractor={item => item.id}
+        data={posts}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderPostItem}
+        numColumns={1} // Single column layout
+        ListFooterComponent={loadingMore ? <ActivityIndicator size="large" color="#000" /> : null}
       />
-    </SafeAreaView>
-  </SafeAreaProvider>
+      {selectedPost && (
+        <Modal
+          visible={modalVisible}
+          animationType="slide"
+          onRequestClose={() => setModalVisible(false)}
+          transparent={false}
+        >
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Post Details</Text>
+            <Image source={{ uri: `data:image/jpeg;base64,${selectedPost.back_image}` }} style={styles.modalBackImage} resizeMode="cover" />
+            <Image source={{ uri: `data:image/jpeg;base64,${selectedPost.front_image}` }} style={styles.modalFrontImage} resizeMode="contain" />
+            <Text>Ingredients: {selectedPost.ingredients}</Text>
+            <Text>Calories: {selectedPost.calories}</Text>
+            <Text>Health Score: {selectedPost.health_score}</Text>
+            <Text>Upvotes: {selectedPost.upvotes}</Text>
+            <Pressable style={styles.closeButton} onPress={() => setModalVisible(false)}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </Pressable>
+          </View>
+        </Modal>
+      )}
+    </View>
   );
 }
 
