@@ -5,7 +5,7 @@ CREATE TABLE Users (
     password TEXT,
     friends TEXT DEFAULT '[]', -- array of friend IDs
     health_score_avg REAL DEFAULT 0,
-    challenge_progress INT DEFAULT 0
+    challenge_progress TEXT DEFAULT '[]' -- array w/ 5 elements [1, 2, 3, 4, 5]
 );
 
 CREATE TABLE Posts (
@@ -21,18 +21,11 @@ CREATE TABLE Posts (
     upvotes INTEGER
 );
 
-CREATE TABLE Votes (
-    postId INTEGER,
-    userId INTEGER,
-    upvotes INTEGER
-);
 
 CREATE TABLE Challenges (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT,
-    goal TEXT,
-    start_date DATE,
-    end_date DATE
+    description TEXT
 );
 
 insert into Users (email, username, password) values ('test@email.com', 'ze2', 'password');
@@ -47,3 +40,10 @@ INSERT INTO Posts (userId, front_image, back_image, ingredients, calories, healt
 (2, 'iVBORw0KGgoAAAANSUhEUgAA...', 'base64back', '["beef", "potatoes", "carrots", "onions"]', 600, 6.5, 'friends', '2025-02-15 15:00:00', 15),
 
 (1, 'iVBORw0KGgoAAAANSUhEUgAA...', 'base64back', '["shrimp", "zucchini", "garlic", "olive oil"]', 430, 9.0, 'public', '2025-02-15 16:20:10', 30);
+
+INSERT INTO Challenges (title, description) VALUES
+('Veggie Victory 🥦', 'Sneak some greens into your plate and level up your meal!'),
+('Grain Gains 🌾', 'Swap in whole grains for a meal that fuels you right.'),
+('Power Up with Protein 🍳', 'Keep your plate packed with muscle-friendly goodness!'),
+('Try No-Fry 🚫🍟', 'Ditch the fryer for a meal that treats your body better.'),
+('Fuel-Up Faceoff 👑🍴', 'Earn points for every healthy choice! The top scorer proves they’ve got the best food game.');
