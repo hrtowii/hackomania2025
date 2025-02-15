@@ -48,20 +48,8 @@ export default function CombinedScreen() {
     setModalVisible(true);
   };
 
-  const closeModal = () => {
-    setModalVisible(false);
-    setSelectedPost(null);
-  };
-
   const renderGridItem = ({ item }: { item: Post }) => {
-    const backImageUri = `data:image/jpeg;base64,${item.back_image}`;
-    const frontImageUri = `data:image/jpeg;base64,${item.front_image}`;
-    return (
-      <Pressable style={styles.gridItem} onPress={() => { /* handle detailed view if required */ }}>
-        <Image source={{ uri: backImageUri }} style={styles.backImage} resizeMode="cover" />
-        <Image source={{ uri: frontImageUri }} style={styles.frontImage} resizeMode="contain" />
-      </Pressable>
-    );
+
   }; 
 
   const renderHomeView = () => (
@@ -96,7 +84,17 @@ export default function CombinedScreen() {
           key={viewMode} // Add key prop to force re-render
           data={posts}
           keyExtractor={(item) => item.id.toString()}
-          renderItem={renderGridItem}
+          renderItem={({item: post}) => {
+            const backImageUri = `data:image/jpeg;base64,${post.back_image}`;
+            const frontImageUri = `data:image/jpeg;base64,${post.front_image}`;
+            return (
+              <Pressable style={styles.gridItem} onPress={() => openModal(post)}>
+                <Image source={{ uri: backImageUri }} style={styles.backImage} resizeMode="cover" />
+                <Image source={{ uri: frontImageUri }} style={styles.frontImage} resizeMode="contain" />
+              </Pressable>
+            );
+          }}
+          
           numColumns={2}
           refreshing={refreshing}
           onRefresh={handleRefresh}
@@ -109,7 +107,7 @@ export default function CombinedScreen() {
         style={styles.floatingButton} 
         onPress={() => setViewMode(viewMode === 'home' ? 'grid' : 'home')}
       >
-        <Text style={{ color: '#fff', fontSize: 24 }}>{viewMode === 'home' ? '🔳' : '🔲'}</Text>
+        <Text style={{ color: '#fff', fontSize: 24 }}>{viewMode === 'home' ? '❤️' : '🌻'}</Text>
       </Pressable>
       {selectedPost && (
       <Modal

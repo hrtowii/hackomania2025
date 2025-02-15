@@ -8,6 +8,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import React from 'react';
 import { BackendUrl } from '@/context/backendUrl';
 import { useAuth } from '@/context/authContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface PictureData {
     uri: string;
@@ -97,7 +98,7 @@ export default function CameraScreen() {
                     />
                 )}
             </CameraView>
-
+            <SafeAreaView style={styles.safeArea}>
             <View style={styles.controls}>
                 <TouchableOpacity onPress={toggleCameraFacing}>
                     <MaterialIcons name="flip-camera-ios" size={40} color="white" />
@@ -118,17 +119,24 @@ export default function CameraScreen() {
                     />
                 </TouchableOpacity>
             </View>
+            </SafeAreaView>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        justifyContent: 'flex-end',
+    },
     container: {
         flex: 1,
         backgroundColor: 'black',
     },
     camera: {
         width: '100%',
+        flex: 4,
+        borderRadius: 20,
     },
     controls: {
         flex: 1,
@@ -136,6 +144,9 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         alignItems: 'center',
         padding: 20,
+        borderRadius: 50,
+        marginBottom: 70,
+        // backgroundColor: 'rgba(255, 255, 0, 0.5)',
     },
     captureButton: {
         width: 70,
