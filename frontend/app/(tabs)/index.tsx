@@ -1,10 +1,11 @@
-import { Image, StyleSheet, Platform, VirtualizedList, StatusBar, Text, View} from 'react-native';
+import { Image, StyleSheet, Platform, VirtualizedList, StatusBar, Text, View, Pressable} from 'react-native';
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { vw, vh, vmin, vmax } from 'react-native-expo-viewport-units';
+import {BackendUrl} from '@/context/backendUrl';
 
 type ItemData = {
   id: string;
@@ -22,9 +23,23 @@ type ItemProps = {
   title: string;
 };
 
+const getImage = async () => {
+  try {
+    const response = await fetch(`${BackendUrl}/posts`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email.value, password: password.value }),
+    });
+    const data = await response.json();
+};
+
 const Item = ({title}: ItemProps) => (
   <View style={styles.item}>
-    <Text style={styles.title}>{title}</Text>
+    <View style={styles.hotbar}>
+      <Image source={require('@/assets/images/\BeFed.png')}style={styles.reactLogo}></Image>
+      <Text style={styles.title}>{title}</Text>
+    </View>
+
     <Image source={require('@/assets/images/\BeFed.png')}
     style={styles.smallimage}
     >
@@ -50,18 +65,18 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   titleContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
     gap: 8,
+    alignItems: 'flex-start',
   },
   title: {
     fontSize: 24,  // Font size for the title
     fontWeight: 'bold',  // Makes the title bold
     color: '#333',  // Text color (dark grey)
-    textAlign: 'center',  // Centers the text
-    marginBottom: 10,  // Space below the title
+    textAlign: 'left',  // Aligns the text to the left
+    marginBottom: 0,  // Space below the title
     letterSpacing: 1,  // Adds space between letters for a stylized effect
     fontFamily: 'Arial',  // Optional: you can customize the font family
-  },
+  },  
   stepContainer: {
     gap: 8,
     marginBottom: 8,
@@ -90,10 +105,19 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
   },
   reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+    height: 50,
+    width: 50,
+    borderRadius: 25,
+    // bottom: 0,
+    // left: 0,
+    // position: 'absolute',
   },
+  hotbar:{
+    width: '100%',
+    // height: '20%',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    gap: '12px'
+  }
 });
