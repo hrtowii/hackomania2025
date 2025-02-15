@@ -1,9 +1,11 @@
-import { StyleSheet, View, useWindowDimensions, TouchableOpacity, Image } from 'react-native'
+import { StyleSheet, View, useWindowDimensions, TouchableOpacity, Image } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useState, useEffect, useRef } from 'react';
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system'; // Import expo-file-system
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
+import React from 'react';
 
 interface PictureData {
     uri: string;
@@ -41,9 +43,39 @@ export default function CameraScreen() {
         }
     }
 
-    function submitPicture() {
+    async function submitPicture() {
         if (pictures.front && pictures.back) {
-            // navigation.navigate('Main', { pictures });
+            try {
+                // Read the images as Base64 encoded strings
+                const frontBase64 = await FileSystem.readAsStringAsync(pictures.front.uri, { encoding: FileSystem.EncodingType.Base64 });
+                const backBase64 = await FileSystem.readAsStringAsync(pictures.back.uri, { encoding: FileSystem.EncodingType.Base64 });
+
+                const payload = {
+                    front_image: frontBase64,
+                    back_image: backBase64,
+                    userID: "your_user_id",     // Replace with your actual user id logic
+                    visibility: "public"         // Or modify as needed
+                };
+
+                // POST the payload to the backend
+                const response = await fetch('http://your-backend-url/posts/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    console.log("Upload successful");
+                    // Optionally navigate or update UI based on a successful upload
+                    // navigation.navigate('Main', { pictures });
+                } else {
+                    console.error("Upload failed:", response.status);
+                }
+            } catch (error) {
+                console.error("Error during submitPicture:", error);
+            }
         }
     }
 
@@ -67,10 +99,9 @@ export default function CameraScreen() {
                     <MaterialIcons name="flip-camera-ios" size={40} color="white" />
                 </TouchableOpacity>
 
-                <TouchableOpacity 
-                    style={styles.captureButton}
-                    onPress={takePicture}
-                />
+                <TouchableOpacity style={[styles.captureButton, { backgroundColor: pictures.front && pictures.back ? '#28a745' : '#dc3545' }]} onPress={takePicture}>
+                    <MaterialIcons name="camera" size={28} color="white" />
+                </TouchableOpacity>
 
                 <TouchableOpacity 
                     onPress={submitPicture}
@@ -106,6 +137,8 @@ const styles = StyleSheet.create({
         width: 70,
         height: 70,
         borderRadius: 35,
+        justifyContent: 'center',
+        alignItems: 'center',
         backgroundColor: 'red',
     },
     previewImage: {
@@ -117,5 +150,5 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderColor: 'white',
         borderRadius: 10,
-    }
+    },
 });

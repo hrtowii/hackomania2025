@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { TouchableOpacity, StyleSheet, View, Alert } from 'react-native';
 import { Text, Button, TextInput } from 'react-native-paper';
 import { router } from 'expo-router';
-
 import { useAuth } from '@/context/authContext';
+import { BackendUrl } from '@/context/backendUrl';
 
 interface RegisterState {
   value: string;
@@ -18,19 +18,32 @@ export default function RegisterScreen() {
   const { login } = useAuth();
 
   const handleRegister = async () => {
-    // Basic validation
-    if (password.value !== confirmPassword.value) {
-      Alert.alert('Error', 'Passwords do not match.');
-      return;
+    // Basic validation with error statuses
+    let hasError = false;
+    if (!email.value) {
+      setEmail((prev) => ({ ...prev, error: 'Email is required' }));
+      hasError = true;
     }
+    if (!username.value) {
+      setUsername((prev) => ({ ...prev, error: 'Username is required' }));
+      hasError = true;
+    }
+    if (!password.value) {
+      setPassword((prev) => ({ ...prev, error: 'Password is required' }));
+      hasError = true;
+    }
+    if (password.value !== confirmPassword.value) {
+      setConfirmPassword((prev) => ({ ...prev, error: 'Passwords do not match' }));
+      hasError = true;
+    }
+    if (hasError) return;
 
     try {
-      const response = await fetch('http://localhost:8080/auth/signup', {
+      const response = await fetch(`${BackendUrl}/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.value, username: username.value, password: password.value }),
       });
-
       const data = await response.json();
       if (response.ok) {
         // Automatically log the user in after successful registration
@@ -55,13 +68,15 @@ export default function RegisterScreen() {
         keyboardType="email-address"
         style={styles.input}
       />
+      {email.error ? <Text style={styles.errorText}>{email.error}</Text> : null}
       <TextInput
         label="Username"
         value={username.value}
         onChangeText={(text) => setUsername({ value: text, error: '' })}
         error={!!username.error}
         style={styles.input}
-        />
+      />
+      {username.error ? <Text style={styles.errorText}>{username.error}</Text> : null}
       <TextInput
         label="Password"
         secureTextEntry
@@ -70,6 +85,7 @@ export default function RegisterScreen() {
         error={!!password.error}
         style={styles.input}
       />
+      {password.error ? <Text style={styles.errorText}>{password.error}</Text> : null}
       <TextInput
         label="Confirm Password"
         secureTextEntry
@@ -78,6 +94,8 @@ export default function RegisterScreen() {
         error={!!confirmPassword.error}
         style={styles.input}
       />
+      {confirmPassword.error ? <Text style={styles.errorText}>{confirmPassword.error}</Text> : null}
+
       <Button mode="contained" onPress={handleRegister} style={styles.button}>
         Register
       </Button>
@@ -96,20 +114,27 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 20,
+    backgroundColor: '#f7f7f7'
   },
   input: {
-    marginBottom: 10,
+    marginBottom: 5,
   },
   button: {
-    marginTop: 10,
+    marginTop: 15,
+    paddingVertical: 5,
   },
   row: {
     flexDirection: 'row',
-    marginTop: 4,
+    marginTop: 10,
     justifyContent: 'center',
   },
   link: {
     fontWeight: 'bold',
     color: '#0a7ea4',
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
+    marginLeft: 4,
   },
 });

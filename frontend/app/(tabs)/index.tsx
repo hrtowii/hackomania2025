@@ -1,61 +1,49 @@
-import { Image, StyleSheet, Platform } from 'react-native';
-
+import { Image, StyleSheet, Platform, VirtualizedList, StatusBar, Text, View} from 'react-native';
+import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { vw, vh, vmin, vmax } from 'react-native-expo-viewport-units';
+
+type ItemData = {
+  id: string;
+  title: string;
+};
+
+const getItem = (_data: unknown, index: number): ItemData => ({
+  id: Math.random().toString(12).substring(0),
+  title: `Item ${index + 1}`,
+});
+
+const getItemCount = (_data: unknown) => 50;
+
+type ItemProps = {
+  title: string;
+};
+
+const Item = ({title}: ItemProps) => (
+  <View style={styles.item}>
+    <Text style={styles.title}>{title}</Text>
+    <Image source={require('@/assets/images/\BeFed.png')}
+    style={styles.smallimage}
+    >
+    </Image>
+  </View>
+);
 
 export default function HomeScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-     
-      parallaxHeaderHeight = {400}
-      headerImage={
-        <Image
-          source={require('@/assets/images/\BeFed.png')}
-          style={styles.reactLogo}
-      
-        
-          
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      <SafeAreaProvider>
+      <SafeAreaView style={styles.container} edges={['top']}>
+      <VirtualizedList
+        initialNumToRender={4}
+        renderItem={({item}) => <Item title={item.title} />}
+        getItemCount={getItemCount}
+        getItem={getItem}
+      />
+      </SafeAreaView>
+      </SafeAreaProvider>
   );
 }
 
@@ -65,9 +53,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
+  title: {
+    fontSize: 24,  // Font size for the title
+    fontWeight: 'bold',  // Makes the title bold
+    color: '#333',  // Text color (dark grey)
+    textAlign: 'center',  // Centers the text
+    marginBottom: 10,  // Space below the title
+    letterSpacing: 1,  // Adds space between letters for a stylized effect
+    fontFamily: 'Arial',  // Optional: you can customize the font family
+  },
   stepContainer: {
     gap: 8,
     marginBottom: 8,
+  },
+  smallimage: {
+    height: '100%',
+    width: '100%',
+    borderRadius: 25,
+    objectFit: 'contain',
+  },
+  container:{
+    flex: 1,
+    alignItems: 'center',
+  },
+  item: {
+    backgroundColor: 'white',
+    borderRadius: 25,
+    height: vh(50),
+    width: vw(90),
+    alignItems: 'center',
+    justifyContent: 'center',
+    columnGap: 20,
+    marginVertical: 10,
+    marginHorizontal: 10,
+    padding: 50,
+    shadowRadius: 10,
   },
   reactLogo: {
     height: 178,
