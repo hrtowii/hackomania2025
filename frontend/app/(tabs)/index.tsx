@@ -57,11 +57,11 @@ export default function CombinedScreen() {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(
-    useCallback(() => {
-      fetchPosts();
-    }, [])
-  ); 
+  // useEffect(
+  //   useCallback(() => {
+  //     fetchPosts();
+  //   }, [])
+  // ); 
   
   const handleRefresh = async () => {
     setRefreshing(true);
