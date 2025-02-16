@@ -33,23 +33,27 @@ export default function CombinedScreen() {
     try {
       const response = await fetch(`${BackendUrl}/feed/community/upvotes`);
       const json = await response.json();
-      const postsWithUsernames = await Promise.all(
-        (json.posts || []).map(async (post: { userId: any; }) => {
-          try {
-            const userResponse = await fetch(`${BackendUrl}/users/${post.userId}/`);
-            const userData = await userResponse.json();
-            return { ...post, username: userData.username };
-          } catch (error) {
-            console.error(`Error fetching username for userId ${post.userId}:`, error);
-            return { ...post, username: `User ${post.userId}` }; // Fallback to user ID if username fetch fails
-          }
-        })
-      );
+      const posts = json.posts || [];
+  
+      const usersResponse = await fetch(`${BackendUrl}/users`);
+      const usersData = await usersResponse.json();
+  
+      const userMap = usersData.reduce((acc: Record<string, string>, user: { id: any; username: string }) => {
+        acc[user.id] = user.username;
+        return acc;
+      }, {});
+  
+      const postsWithUsernames = posts.map((post: { userId: string | number; }) => ({
+        ...post,
+        username: userMap[post.userId] || `User ${post.userId}` // Fallback to user ID if not found
+      }));
+  
       setPosts(postsWithUsernames);
     } catch (error) {
       console.error('Error fetching posts:', error);
     }
   };
+  
 
   // useEffect(() => {
   //   const interval = setInterval(() => {

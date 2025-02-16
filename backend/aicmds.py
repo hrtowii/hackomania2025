@@ -2,6 +2,7 @@ import base64
 import json
 from typing import List, Dict
 
+from models import FoodDetails
 import cv2
 import numpy as np
 import openai
@@ -16,17 +17,6 @@ load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 # print(openai.api_key)
 client = openai.OpenAI(api_key=openai.api_key, base_url="https://openrouter.ai/api/v1")
-
-class FoodDetails(BaseModel):
-    calories: int
-    health_score: int
-    food_name: str
-    ingredients: str
-    chal1: bool
-    chal2: bool
-    chal3: bool
-    chal4: bool
-    total_chals: int
 
 def analyze_image_with_openai(image_b64: str):
     try:

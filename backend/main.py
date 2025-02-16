@@ -83,7 +83,7 @@ def get_user(user_id):
             "SELECT health_score_avg, challenge_progress, username FROM Users WHERE id = (?)", (user_id,))
         rows = cur.fetchall()
 
-    print(rows)
+    # print(rows)
 
     try:
         health_score = rows[0]['health_score_avg']
@@ -202,11 +202,11 @@ def friend_feed(user_id, sort_method):
 
     friendlist_parsed = json.loads(friendlist)
 
-    print(friendlist_parsed)
+    # print(friendlist_parsed)
 
     placeholders = ','.join(['?'] * len(friendlist_parsed))
 
-    print(placeholders)
+    # print(placeholders)
 
     sort_options = {
         "recency": "timestamp ASC",
