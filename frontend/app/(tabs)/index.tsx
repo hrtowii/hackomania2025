@@ -296,9 +296,12 @@ const styles = StyleSheet.create({
     zIndex: 999,
   },
   modalContainer: {
-    flex: 1,
-    padding: 20,
+    height: '90%',
     backgroundColor: '#fff',
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    marginTop: 'auto'
   },
   modalTitle: {
     fontSize: 28,

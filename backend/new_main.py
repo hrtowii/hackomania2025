@@ -192,8 +192,9 @@ async def get_challenge_leaderboard_endpoint(challenge_no: int, num: int):
     leaderboard = await get_challenge_leaderboard(challenge_no, num)
     # Each leaderboard tuple is in order: id, username, points
     leaderboard_list = [
-        {"id": entry[0], "username": entry[1], "points": entry[2]} for entry in leaderboard
+        {"id": entry[0], "username": entry[1], "points": int(entry[2])} for entry in leaderboard
     ]
+    print(leaderboard_list)
     return leaderboard_list
 
 @app.get("/users", response_model=List[LeaderboardUser])
@@ -210,7 +211,7 @@ async def leaderboard_health(num: int):
         {
             "id": user[0],
             "username": user[1],
-            "health_score_avg": user[2]  # renamed property to match frontend expectation
+            "points": int(user[2])  # renamed property to match frontend expectation
         } for user in leaderboard
     ]
     return leaderboard_list

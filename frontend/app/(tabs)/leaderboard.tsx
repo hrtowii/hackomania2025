@@ -31,11 +31,11 @@ export default function LeaderboardComponent() {
                     throw new Error('Failed to fetch data');
                 }
                 const result = await response.json();
-
+                console.log(result);
                 const transformedData = result.map((user, index) => ({
                     rank: index + 1, 
                     userName: user.username,
-                    highScore: leaderboardType === 'health' ? user.health_score_avg : user.points,
+                    highScore: leaderboardType === 'health' ? user.points : user.points,
                 }));
 
                 setLeaderboardData(transformedData);

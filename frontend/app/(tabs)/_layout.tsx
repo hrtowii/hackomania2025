@@ -51,17 +51,17 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="camera"
-        options={{
-          title: 'Take Photo',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="camera.aperture" color={color} />,
-        }}
-      />
-      <Tabs.Screen
         name="leaderboard"
         options={{
           title: 'Leaderboard',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="medal.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="camera"
+        options={{
+          title: 'Take Photo',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="camera.aperture" color={color} />,
         }}
       />
       <Tabs.Screen
@@ -71,13 +71,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="magnifyingglass" color={color} />,
         }}
       />
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="friends"
         options={{
           title: 'Friends',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.2.fill" color={color} />,
         }}
-      />
+      /> */}
       <Tabs.Screen
         name="profile/[targetUserId]"
         options={{
