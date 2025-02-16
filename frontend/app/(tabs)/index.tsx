@@ -206,7 +206,7 @@ export default function CombinedScreen() {
             <Image
               source={{ uri: `data:image/jpeg;base64,${selectedPost.front_image}` }}
               style={styles.modalFrontImage}
-              resizeMode="contain"
+              resizeMode="cover"
             />
             <View style={styles.detailsContainer}>
               <Text style={styles.detailTitle}>Ingredients:</Text>
@@ -247,13 +247,13 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     borderRadius: 15,
     overflow: 'hidden',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#F1E3A4',
     position: 'relative',
   },
   homeItem: {
     padding: 20,
     marginVertical: 15,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#F1E3A4',
     borderRadius: 10,
     marginHorizontal: 10,
   },
@@ -329,8 +329,7 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 50,
     alignSelf: 'center',
-    marginBottom: 15,
-    borderWidth: 2,
+    marginBottom: 5,
     borderColor: '#fff',
   },
   closeButton: {
