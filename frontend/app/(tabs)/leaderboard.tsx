@@ -32,8 +32,8 @@ export default function LeaderboardComponent() {
                 }
                 const result = await response.json();
 
-                const transformedData = result.users.map((user, index) => ({
-                    rank: index + 1, // Add rank
+                const transformedData = result.map((user, index) => ({
+                    rank: index + 1, 
                     userName: user.username,
                     highScore: leaderboardType === 'health' ? user.health_score_avg : user.points,
                 }));

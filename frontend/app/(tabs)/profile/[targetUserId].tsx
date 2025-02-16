@@ -7,6 +7,7 @@ function profile() {
     let {targetUserId} = useLocalSearchParams();
     // console.log(targetUserId)
     if (!targetUserId) {
+        console.log("no targetUserId")
         targetUserId = "2";
     }
     const {userId} = useAuth();

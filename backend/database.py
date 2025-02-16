@@ -63,11 +63,11 @@ async def update_score(user_id, chal1, chal2, chal3, chal4, total):
         result = await cursor.fetchone()
         if result:
             progress = json.loads(result[0])
-            progress[0] += int(chal1)
-            progress[1] += int(chal2)
-            progress[2] += int(chal3)
-            progress[3] += int(chal4)
-            progress[4] += total
+            progress[0] += float(chal1)
+            progress[1] += float(chal2)
+            progress[2] += float(chal3)
+            progress[3] += float(chal4)
+            progress[4] += float(total) 
             await db.execute("UPDATE Users SET challenge_progress = ? WHERE id = ?", (json.dumps(progress), user_id))
             await db.commit()
 

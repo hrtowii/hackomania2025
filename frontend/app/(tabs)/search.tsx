@@ -26,9 +26,9 @@ const UsersList = () => {
   const fetchUsers = async () => {
     try {
       const response = await fetch(`${BackendUrl}/users`);
-      const data: { users: User[] } = await response.json();
-      setUsers(data.users);
-      setFilteredUsers(data.users);
+      const data: User[] = await response.json();
+      setUsers(data);
+      setFilteredUsers(data);
     } catch (error) {
       console.error("Error fetching users:", error);
     } finally {
@@ -38,6 +38,7 @@ const UsersList = () => {
 
   const handleSearch = (text: string) => {
     setSearch(text);
+    console.log(users)
     const filtered = users.filter((user) =>
       user.username.toLowerCase().includes(text.toLowerCase())
     );
@@ -49,10 +50,10 @@ const UsersList = () => {
       const response = await fetch(`${BackendUrl}/users/${userId}/friends/add/${targetUserId}/`);
       const data = await response.json();
       
-      if (data.successful) {
+      if (data.success) {
         setFriendStatus((prev) => ({ ...prev, [targetUserId]: "Friend Added ✅" }));
       } else {
-        setFriendStatus((prev) => ({ ...prev, [targetUserId]: data.error || "Error adding friend" }));
+        setFriendStatus((prev) => ({ ...prev, [targetUserId]: "Request failed ❌" }));
       }
     } catch (error) {
       console.error("Error adding friend:", error);

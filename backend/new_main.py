@@ -206,9 +206,12 @@ async def get_all_users_endpoint():
 @app.get("/leaderboard/health/{num}", response_model=List[LeaderboardUser])
 async def leaderboard_health(num: int):
     leaderboard = await get_health_leaderboard(num)
-    # Each leaderboard tuple is in order: id, username, health_score_avg; map health_score_avg -> points.
     leaderboard_list = [
-        {"id": user[0], "username": user[1], "points": user[2]} for user in leaderboard
+        {
+            "id": user[0],
+            "username": user[1],
+            "health_score_avg": user[2]  # renamed property to match frontend expectation
+        } for user in leaderboard
     ]
     return leaderboard_list
 

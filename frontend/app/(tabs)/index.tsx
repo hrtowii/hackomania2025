@@ -256,9 +256,9 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   homeItem: {
-    padding: 20,
+    // padding: 20,
     marginVertical: 15,
-    backgroundColor: '#F1E3A4',
+    // backgroundColor: '#F1E3A4',
     borderRadius: 10,
     marginHorizontal: 10,
   },
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 18,
     fontFamily: 'Rubik_400Regular',
-    
+    color: "white",
   },
   homeImage: {
     width: '100%',
