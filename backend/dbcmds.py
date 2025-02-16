@@ -7,6 +7,21 @@ def save_post(userId, front_image, back_image, ingredients, calories, health_sco
         cur = con.cursor()
         cur.execute("INSERT INTO Posts(userId, front_image, back_image, ingredients, calories, health_score, visibility, timestamp, upvotes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (userId, front_image, back_image, ingredients, calories, health_score, visibility, timestamp, upvotes, ))
         con.commit()
+        
+        cur.execute("""
+                    SELECT AVG(health_score) FROM Posts
+                    WHERE userId=?  
+                    """, (userId,))
+        
+        new_avg = cur.fetchone()[0]
+        
+        cur.execute("""
+                    UPDATE Users
+                    SET health_score_avg=?
+                    WHERE id=?
+                    """, (new_avg, userId))
+        
+        con.commit()
 
       #   post_id = con.lastrowid
       #   con.close()

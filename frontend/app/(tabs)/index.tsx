@@ -1,10 +1,8 @@
 import React, { useState, useCallback, useEffect} from 'react';
 import { View, FlatList, RefreshControl, ScrollView, Image, Text, Pressable, StyleSheet, Modal } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
 import { BackendUrl } from '@/context/backendUrl';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { useFonts, Rubik_400Regular, Rubik_900Black_Italic } from "@expo-google-fonts/rubik";
-import { useAuth } from '@/context/authContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface Post {
@@ -105,7 +103,7 @@ export default function CombinedScreen() {
 
   // Render the list (home) view.
   const renderHomeView = () => (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={styles.backgroundcontainer}>
       <FlatList
         key={viewMode}
         numColumns={1}
@@ -113,7 +111,7 @@ export default function CombinedScreen() {
         keyExtractor={(item) => item.id.toString()}
         ListHeaderComponent={(
           <View style={styles.header}>
-            <Image source={require('@/assets/images/BeFed.png')} style={styles.banner} />
+            <Image source={require('@/assets/images/befedblack.png')} style={styles.banner} />
           </View>
         )}
         renderItem={({ item: post }) => (
@@ -208,7 +206,7 @@ export default function CombinedScreen() {
             <Image
               source={{ uri: `data:image/jpeg;base64,${selectedPost.front_image}` }}
               style={styles.modalFrontImage}
-              resizeMode="contain"
+              resizeMode="cover"
             />
             <View style={styles.detailsContainer}>
               <Text style={styles.detailTitle}>Ingredients:</Text>
@@ -239,19 +237,23 @@ const styles = StyleSheet.create({
   gridContainer: {
     padding: 5,
   },
+  backgroundcontainer: {
+    backgroundColor: '#000000',
+    flex:1,
+  },
   gridItem: {
     flex: 1,
     margin: 5,
     aspectRatio: 1,
     borderRadius: 15,
     overflow: 'hidden',
-    backgroundColor: '#5c8001',
+    backgroundColor: '#F1E3A4',
     position: 'relative',
   },
   homeItem: {
-    padding: 10,
-    marginVertical: 8,
-    backgroundColor: '#5c8001',
+    padding: 20,
+    marginVertical: 15,
+    backgroundColor: '#F1E3A4',
     borderRadius: 10,
     marginHorizontal: 10,
   },
@@ -275,7 +277,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 100,
     right: 20,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#fff',
     borderRadius: 30,
     width: 60,
     height: 60,
@@ -327,8 +329,7 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 50,
     alignSelf: 'center',
-    marginBottom: 15,
-    borderWidth: 2,
+    marginBottom: 5,
     borderColor: '#fff',
   },
   closeButton: {
@@ -346,7 +347,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     width: '100%',
     height: 150,
-    backgroundColor: "#5c8001",
+    backgroundColor: "#40ad9d",
   },
   backImage: {
     width: '100%',
@@ -382,7 +383,7 @@ const styles = StyleSheet.create({
   banner: {
     width: '100%',
     height: '100%',
-    resizeMode: 'contain',
+    resizeMode: 'cover',
   },
   imageWrapper: {
     position: 'relative',
@@ -401,8 +402,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 25,
     right: 15,
-    backgroundColor: '#007AFF', // Solid round background color
+    backgroundColor: '#000', // Solid round background color
     borderRadius: 30,
+    opacity: 0.7,
     padding: 15,
     flexDirection: 'row',
     alignItems: 'center',
@@ -411,7 +413,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 5,
     right: 5,
-    backgroundColor: '#007AFF', // Solid round background color
+    backgroundColor: '#000', // Solid round background color
     borderRadius: 30,
     padding: 5,
     flexDirection: 'row',
