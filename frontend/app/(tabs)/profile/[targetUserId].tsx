@@ -4,8 +4,11 @@ import { View, ActivityIndicator, Text, StyleSheet, Image, TextInput, TouchableO
 import { useAuth } from '@/context/authContext';
 import { useLocalSearchParams } from 'expo-router';
 function profile() {
-    const {targetUserId} = useLocalSearchParams();
-    console.log(targetUserId)
+    let {targetUserId} = useLocalSearchParams();
+    // console.log(targetUserId)
+    if (!targetUserId) {
+        targetUserId = "1";
+    }
     const {userId} = useAuth();
     const [userData, setUserData] = useState<any>({})
     const [friendStatus, setFriendStatus] = useState<string>("")
