@@ -172,7 +172,7 @@ def upload():
     cals = res["calories"]
     hs = res["health_score"]
     ingredients = res['ingredients'].split(', ')
-    
+
     chal1 = res["chal1"]
     chal2 = res["chal2"]
     chal3 = res["chal3"]
@@ -180,9 +180,9 @@ def upload():
     total = res["total_chals"]
 
     save_post(userId=user_id, front_image=front_image, back_image=back_image, ingredients=json.dumps(ingredients), calories=cals, health_score=hs, visibility=vis, timestamp=curr_dt, upvotes=0)
-    
+
     update_score(Id=user_id, chal1=chal1, chal2=chal2, chal3=chal3, chal4=chal4, total=total)
-    
+
     return make_response(jsonify(status=200))
 
 @app.route("/feed/<user_id>/friends/<sort_method>")
@@ -333,6 +333,21 @@ def get_challenge_leaderboard(challenge_no, num):
         user = dict(user)
         users.append(user)
     return make_response(jsonify(users=users), 200)
+
+@app.route("/users")
+def get_all_users():
+    with sqlite3.connect('database.db') as con:
+        con.row_factory = sqlite3.Row
+        cur = con.cursor()
+        cur.execute(f"SELECT id, username FROM Users")
+        rows = cur.fetchall()
+
+    users = []
+    for user in rows:
+        user = dict(user)
+        users.append(user)
+    return make_response(jsonify(users=users), 200)
+
 
 @app.route("/leaderboard/health/<num>")
 def leaderboard_health(num):
