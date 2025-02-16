@@ -70,15 +70,6 @@ function profile() {
         </Text>
       </View>
     
-      {userId !== userData.id && (
-        <TouchableOpacity style={styles.button} onPress={() => addFriend(1)}>
-          <Text style={styles.buttonText}>Add Friend</Text>
-        </TouchableOpacity>
-      )}
-    
-      {friendStatus ? (
-        <Text style={styles.statusMessage}>{friendStatus}</Text>
-      ) : null}
     </View>
     
       );

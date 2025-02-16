@@ -3,6 +3,7 @@ import { View, FlatList, TextInput, StyleSheet, TouchableOpacity } from "react-n
 import { Card, Text, ActivityIndicator } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BackendUrl } from '@/context/backendUrl';
+import { useFocusEffect } from "expo-router";
 
 type User = {
   id: number;
@@ -18,9 +19,9 @@ const UsersList = () => {
   const [search, setSearch] = useState("");
   const [friendStatus, setFriendStatus] = useState<{ [key: number]: string }>({});
 
-  useEffect(() => {
+  useFocusEffect(() => {
     fetchUsers();
-  }, []);
+  }, );
 
   const fetchUsers = async () => {
     try {
