@@ -4,6 +4,7 @@ import { BackendUrl } from '@/context/backendUrl';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { useFonts, Rubik_400Regular, Rubik_900Black_Italic } from "@expo-google-fonts/rubik";
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from 'expo-router';
 
 interface Post {
   id: number;
@@ -50,19 +51,19 @@ export default function CombinedScreen() {
     }
   };
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchPosts();
-    }, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // useEffect(
-  //   useCallback(() => {
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
   //     fetchPosts();
-  //   }, [])
-  // ); 
-  
+  //   }, 30000);
+  //   return () => clearInterval(interval);
+  // }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchPosts();
+    }, [])
+  );
+
   const handleRefresh = async () => {
     setRefreshing(true);
     await fetchPosts();
