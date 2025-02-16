@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { View, FlatList, TextInput, StyleSheet, TouchableOpacity } from "react-native";
-import { Card, Text, ActivityIndicator } from "react-native-paper";
+import { FlatList, TextInput, StyleSheet, ActivityIndicator, TouchableOpacity } from "react-native";
+import { Card, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BackendUrl } from '@/context/backendUrl';
 import { useFocusEffect } from "expo-router";
@@ -17,23 +17,17 @@ const UsersList = () => {
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [friendStatus, setFriendStatus] = useState<{ [key: number]: string }>({});
+  const [addedFriends, setAddedFriends] = useState<Set<number>>(new Set());
 
   useFocusEffect(() => {
     fetchUsers();
-  }, );
+  },);
 
   const fetchUsers = async () => {
-    try {
       const response = await fetch(`${BackendUrl}/users`);
       const data: { users: User[] } = await response.json();
       setUsers(data.users);
       setFilteredUsers(data.users);
-    } catch (error) {
-      console.error("Error fetching users:", error);
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleSearch = (text: string) => {
@@ -45,18 +39,19 @@ const UsersList = () => {
   };
 
   const addFriend = async (targetUserId: number) => {
+    // Remove the button immediately
+    setAddedFriends(prev => new Set(prev).add(targetUserId));
+
     try {
       const response = await fetch(`${BackendUrl}/users/${userId}/friends/add/${targetUserId}/`);
       const data = await response.json();
-      
-      if (data.successful) {
-        setFriendStatus((prev) => ({ ...prev, [targetUserId]: "Friend Added ✅" }));
-      } else {
-        setFriendStatus((prev) => ({ ...prev, [targetUserId]: data.error || "Error adding friend" }));
+      // Handle successful addition or any error if needed
+      if (!data.successful) {
+        // You can show an error message or handle failure case here if required
+        console.error("Failed to add friend");
       }
     } catch (error) {
       console.error("Error adding friend:", error);
-      setFriendStatus((prev) => ({ ...prev, [targetUserId]: "Request failed ❌" }));
     }
   };
 
@@ -79,14 +74,15 @@ const UsersList = () => {
           <Card style={styles.card}>
             <Card.Content>
               <Text>{item.username}</Text>
-              {/* Smaller Add button */}
-              <TouchableOpacity 
-                style={styles.addButton} 
-                onPress={() => addFriend(item.id)}
-              >
-                <Text style={styles.addButtonText}>Add</Text>
-              </TouchableOpacity>
-              {friendStatus[item.id] && <Text style={styles.status}>{friendStatus[item.id]}</Text>}
+              {/* Remove button immediately upon click */}
+              {!addedFriends.has(item.id) && (
+                <TouchableOpacity 
+                  style={styles.addButton} 
+                  onPress={() => addFriend(item.id)}
+                >
+                  <Text style={styles.addButtonText}>Add</Text>
+                </TouchableOpacity>
+              )}
             </Card.Content>
           </Card>
         )}
@@ -96,7 +92,7 @@ const UsersList = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 10, backgroundColor: "#fff" },
+  container: { flex: 1, padding: 10, backgroundColor: '#fff' },
   searchBar: {
     height: 40,
     borderColor: "#ccc",
@@ -104,12 +100,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 10,
     marginBottom: 10,
+    color: '#fff',
   },
-  card: { marginBottom: 8, padding: 10 },
+  card: { marginBottom: 8, padding: 10, backgroundColor: '#fff2b2' },
   loader: { flex: 1, justifyContent: "center" },
-  status: { color: "green", marginTop: 5 },
   addButton: {
-    backgroundColor: "#007BFF",
+    backgroundColor: "#fff",
     paddingVertical: 5,
     paddingHorizontal: 12,
     borderRadius: 5,
@@ -117,7 +113,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   addButtonText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 14,
   },
 });

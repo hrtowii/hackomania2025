@@ -36,40 +36,44 @@ const FeedScreen = () => {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 const {userId} = useAuth();
-  const fetchPosts = useCallback(async () => {
-    let url = '';
-    if (feedType === 'healthy') {
-      url = `${BackendUrl}/feed/healthy/${sortMethod}`;
-    } else if (feedType === 'friends') {
-      url = `${BackendUrl}/feed/${userId}/friends/${sortMethod}`;
-    } else {
-      url = `${BackendUrl}/feed/community/${sortMethod}`;
-    }
+const fetchPosts = useCallback(async () => {
+  let url = '';
+  if (feedType === 'healthy') {
+    url = `${BackendUrl}/feed/healthy/${sortMethod}`;
+  } else if (feedType === 'friends') {
+    url = `${BackendUrl}/feed/${userId}/friends/${sortMethod}`;
+  } else {
+    url = `${BackendUrl}/feed/community/${sortMethod}`;
+  }
 
-    try {
-      const response = await fetch(url);
-      const json = await response.json();
-      const postsData = json.posts || [];
-      const postsWithUsernames = await Promise.all(
-        postsData.map(async (post: Post) => {
-          if (!post.username) {
-            try {
-              const userResponse = await fetch(`${BackendUrl}/users/${post.userId}/`);
-              const userData = await userResponse.json();
-              return { ...post, username: userData.username };
-            } catch (error) {
-              console.error('Error fetching username:', error);
-              return { ...post, username: `User ${post.userId}` };
-            }
-          }
-          return post;
-        })
-      );
-      setPosts(postsWithUsernames);
-    } catch (error) {
-      console.error('Error fetching posts:', error);
-    }
-  }, [feedType, sortMethod, userId]);
+  try {
+    const response = await fetch(url);
+    const json = await response.json();
+    const postsData = json.posts || [];
+
+    // Fetch all users once, then map the posts
+    const userIds = postsData.map((post:Post) => post.userId);
+    const uniqueUserIds = [...new Set(userIds)];
+
+    const usersResponse = await fetch(`${BackendUrl}/users/bulk/${uniqueUserIds.join(',')}`);
+    const usersData = await usersResponse.json();
+    const usersMap = usersData.reduce((acc: { [key: number]: string }, user: { id: number, username: string }) => {
+      acc[user.id] = user.username;
+      return acc;
+    }, {});
+
+    // Map posts with usernames
+    const postsWithUsernames = postsData.map((post: Post) => ({
+      ...post,
+      username: usersMap[post.userId] || `User ${post.userId}`
+    }));
+
+    setPosts(postsWithUsernames);
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+  }
+}, [feedType, sortMethod, userId]);
+
 
   useEffect(() => {
     fetchPosts();
