@@ -31,29 +31,10 @@ CREATE TABLE Challenges (
     description TEXT
 );
 
-insert into Users (email, username, password) values ('test@email.com', 'ze2', 'password');
-insert into Users (email, username, password, health_score_avg) values ('test1@email.com', 'ze2', 'password', 6.7);
-insert into Users (email, username, password, health_score_avg, challenge_progress) values ('test6@email.com', 'test6', 'password', 6.7, '[1, 2, 3, 4, 10]');
-insert into Users (email, username, password, health_score_avg, challenge_progress) values ('test7@email.com', 'test7', 'password', 6.7, '[2, 4, 1, 5, 12]');
+insert into Users (email, username, password, health_score_avg, challenge_progress) values ('john@email.com', 'John Doe', 'password', 5, '[1, 2, 3, 4, 10]');
+insert into Users (email, username, password, health_score_avg, challenge_progress) values ('jane@email.com', 'Jane Doe', 'password', 6.7, '[2, 4, 1, 5, 12]');
+insert into Users (email, username, password, health_score_avg, challenge_progress) values ('bob@email.com', 'Bob', 'password', 8, '[6, 8, 5, 8, 27]');
 
-
-INSERT INTO Posts (userId, front_image, back_image, ingredients, calories, health_score, visibility, timestamp, upvotes) VALUES
-(1, 'iVBORw0KGgoAAAANSUhEUgAA...', 'base64back', '["chicken", "broccoli", "rice", "garlic"]', 450, 8.5, 'public', '2025-02-15 12:34:56', 10),
-
-(2, 'iVBORw0KGgoAAAANSUhEUgAA...', 'base64back', '["salmon", "asparagus", "lemon", "butter"]', 520, 9.2, 'friends', '2025-02-15 13:45:00', 25),
-
-(3, 'iVBORw0KGgoAAAANSUhEUgAA...', 'base64back', '["tofu", "mushrooms", "soy sauce", "bok choy"]', 320, 7.8, 'public', '2025-02-15 14:15:30', 7),
-
-(2, 'iVBORw0KGgoAAAANSUhEUgAA...', 'base64back', '["beef", "potatoes", "carrots", "onions"]', 600, 6.5, 'friends', '2025-02-15 15:00:00', 15),
-
-(1, 'iVBORw0KGgoAAAANSUhEUgAA...', 'base64back', '["shrimp", "zucchini", "garlic", "olive oil"]', 430, 9.0, 'public', '2025-02-15 16:20:10', 30);
-
-INSERT INTO Challenges (title, description) VALUES
-('Veggie Victory 🥦', 'Sneak some greens into your plate and level up your meal!'),
-('Grain Gains 🌾', 'Swap in whole grains for a meal that fuels you right.'),
-('Power Up with Protein 🍳', 'Keep your plate packed with muscle-friendly goodness!'),
-('Try No-Fry 🚫🍟', 'Ditch the fryer for a meal that treats your body better.'),
-('Fuel-Up Faceoff 👑🍴', 'Earn points for every healthy choice! The top scorer proves they’ve got the best food game.');
 INSERT INTO Challenges (title, description) VALUES
 ('Veggie Victory 🥦', 'Sneak some greens into your plate and level up your meal!'),
 ('Grain Gains 🌾', 'Swap in whole grains for a meal that fuels you right.'),
