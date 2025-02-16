@@ -36,6 +36,7 @@ insert into Users (email, username, password, health_score_avg) values ('test1@e
 insert into Users (email, username, password, health_score_avg, challenge_progress) values ('test6@email.com', 'test6', 'password', 6.7, '[1, 2, 3, 4, 10]');
 insert into Users (email, username, password, health_score_avg, challenge_progress) values ('test7@email.com', 'test7', 'password', 6.7, '[2, 4, 1, 5, 12]');
 
+
 INSERT INTO Posts (userId, front_image, back_image, ingredients, calories, health_score, visibility, timestamp, upvotes) VALUES
 (1, 'iVBORw0KGgoAAAANSUhEUgAA...', 'base64back', '["chicken", "broccoli", "rice", "garlic"]', 450, 8.5, 'public', '2025-02-15 12:34:56', 10),
 
