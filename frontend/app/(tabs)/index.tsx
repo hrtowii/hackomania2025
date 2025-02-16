@@ -116,7 +116,7 @@ export default function CombinedScreen() {
         keyExtractor={(item) => item.id.toString()}
         ListHeaderComponent={(
           <View style={styles.header}>
-            <Image source={require('@/assets/images/befedblack.png')} style={styles.banner} />
+            <Image source={require('@/assets/images/befedwhite.png')} style={styles.banner} />
           </View>
         )}
         renderItem={({ item: post }) => (
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   backgroundcontainer: {
-    backgroundColor: '#000000',
+    backgroundColor: '#fff',
     flex:1,
   },
   gridItem: {
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 18,
     fontFamily: 'Rubik_400Regular',
-    color: "white",
+    color: "black",
   },
   homeImage: {
     width: '100%',

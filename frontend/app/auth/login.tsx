@@ -34,13 +34,14 @@ export default function LoginScreen() {
         body: JSON.stringify({ email: email.value, password: password.value }),
       });
       const data = await response.json();
-      
+      console.log(data)
       if (response.ok) {
-        login(data.id);
+        login(data.userId.toString());
       } else {
         Alert.alert('Error', data.error || 'Invalid credentials.');
       }
     } catch (error) {
+      console.log(error)
       Alert.alert('Error', 'Login failed. Please try again.');
     }
   };
