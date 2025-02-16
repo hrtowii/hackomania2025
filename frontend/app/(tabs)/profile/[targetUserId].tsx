@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { BackendUrl } from '@/context/backendUrl';
 import { View, ActivityIndicator, Text, StyleSheet, Image, TextInput, TouchableOpacity } from 'react-native';
 import { useAuth } from '@/context/authContext';
-import { useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 function profile() {
     let {targetUserId} = useLocalSearchParams();
     // console.log(targetUserId)
@@ -13,7 +13,7 @@ function profile() {
     const [userData, setUserData] = useState<any>({})
     const [friendStatus, setFriendStatus] = useState<string>("")
     const [loading, setLoading] = useState<boolean>(true)
-    useEffect(() => {
+    useFocusEffect(() => {
         try {
             fetch(`${BackendUrl}/users/${targetUserId}`)
             .then(response => response.json())
@@ -25,7 +25,7 @@ function profile() {
         } catch (e) {
             console.log(`error: ${e}`)
         }
-    }, [])
+    },)
 
     const addFriend = (targetUserId: number) => {
         try {

@@ -197,7 +197,7 @@ export default function CombinedScreen() {
       </Pressable>
       {selectedPost && (
         <Modal visible={modalVisible} animationType="slide" onRequestClose={() => setModalVisible(false)}>
-          <View style={styles.modalContainer}>
+          <SafeAreaView style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Post Details</Text>
             <Image
               source={{ uri: `data:image/jpeg;base64,${selectedPost.back_image}` }}
@@ -226,7 +226,7 @@ export default function CombinedScreen() {
             <Pressable style={styles.closeButton} onPress={() => setModalVisible(false)}>
               <Text style={styles.closeButtonText}>Close</Text>
             </Pressable>
-          </View>
+          </SafeAreaView>
         </Modal>
       )}
     </View>
@@ -248,13 +248,12 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     borderRadius: 15,
     overflow: 'hidden',
-    backgroundColor: '#F1E3A4',
+    backgroundColor: '#fff2b2',
     position: 'relative',
   },
   homeItem: {
-    padding: 20,
+    padding: 0,
     marginVertical: 15,
-    backgroundColor: '#F1E3A4',
     borderRadius: 10,
     marginHorizontal: 10,
   },
@@ -266,7 +265,7 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 18,
     fontFamily: 'Rubik_400Regular',
-    
+    color: '#fff'
   },
   homeImage: {
     width: '100%',

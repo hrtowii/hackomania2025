@@ -263,7 +263,6 @@ const styles = StyleSheet.create({
     label: {
         textAlign: 'left',
         paddingLeft: 12,
-        marginTop: 10
     },
     rank: {
         fontSize: 16,
